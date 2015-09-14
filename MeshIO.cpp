@@ -433,7 +433,7 @@ void MeshIO::write(std::ofstream& out, const Mesh& mesh)
             he = he->next;
         } while (he != mesh.faces[index].he);
         
-        std::cout << std::endl;
+        out << std::endl;
         index ++;
     }
 }
