@@ -17,7 +17,7 @@ const double clipNear = .01;
 const double clipFar = 1000.;
 double x = 0;
 double y = 0;
-double z = 2.5;
+double z = 3.5;
 int currTri = 0;
 bool texture = true;
 
@@ -108,7 +108,7 @@ void drawTexture()
         glBegin(GL_TRIANGLES);
         do {
             glTexCoord2d(he->vertex->uv.x(), he->vertex->uv.y());
-            glVertex3d(he->vertex->position.x() + 0.75,
+            glVertex3d(he->vertex->position.x() + 1.0,
                        he->vertex->position.y(),
                        he->vertex->position.z());
             
@@ -153,10 +153,10 @@ void drawWireframe()
                    v2->uv.y(),
                    0);
             
-        glVertex3d(v1->position.x() + 0.75,
+        glVertex3d(v1->position.x() + 1.0,
                    v1->position.y(),
                    v1->position.z());
-        glVertex3d(v2->position.x() + 0.75,
+        glVertex3d(v2->position.x() + 1.0,
                    v2->position.y(),
                    v2->position.z());
     }

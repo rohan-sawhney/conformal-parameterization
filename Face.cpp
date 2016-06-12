@@ -9,14 +9,11 @@ bool Face::isBoundary() const
 
 Eigen::Vector3d Face::normal() const
 {
-    Eigen::Vector3d a = he->vertex->position;
-    Eigen::Vector3d b = he->next->vertex->position;
-    Eigen::Vector3d c = he->next->next->vertex->position;
+    const Eigen::Vector3d& a(he->vertex->position);
+    const Eigen::Vector3d& b(he->next->vertex->position);
+    const Eigen::Vector3d& c(he->next->next->vertex->position);
     
-    Eigen::Vector3d v1 = b - a;
-    Eigen::Vector3d v2 = c - a;
-    
-    return v1.cross(v2);
+    return (b-a).cross(c-a);
 }
 
 double Face::area() const
@@ -26,4 +23,20 @@ double Face::area() const
     }
     
     return 0.5 * normal().norm();
+}
+
+double Face::uvArea() const
+{
+    if (isBoundary()) {
+        return 0;
+    }
+    
+    const Eigen::Vector2d& a(he->vertex->uv);
+    const Eigen::Vector2d& b(he->next->vertex->uv);
+    const Eigen::Vector2d& c(he->next->next->vertex->uv);
+    
+    const Eigen::Vector2d u = b - a;
+    const Eigen::Vector2d v = c - a;
+    
+    return 0.5 * (u.x()*v.y() - v.x()*u.y());
 }

@@ -16,6 +16,9 @@ public:
     
     // returns face area
     double area() const;
+    
+    // returns uv area
+    double uvArea() const;
 };
 
 #endif

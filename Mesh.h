@@ -38,6 +38,9 @@ private:
     // EC = ED - A
     void buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) const;
     
+    // builds mass matrix
+    void buildMassMatrix(Eigen::SparseMatrix<std::complex<double>>& M) const;
+    
     // center mesh about origin and rescale to unit radius
     void normalize();
 };

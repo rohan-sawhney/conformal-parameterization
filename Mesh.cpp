@@ -54,8 +54,8 @@ void Mesh::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) co
         HalfEdgeCIter he = v->he;
         double sumCoefficients = 0.0;
         do {
-            // (cotA + cotB) / 4
-            double coefficient = 0.25 * (he->cotan() + he->flip->cotan());
+            // (cotA + cotB) / 2
+            double coefficient = 0.5 * (he->cotan() + he->flip->cotan());
             sumCoefficients += coefficient;
             
             ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index,
@@ -70,7 +70,7 @@ void Mesh::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) co
     }
 
     // subtract area term from dirichlet energy
-    std::complex<double> i(0, 0.25);
+    std::complex<double> i(0, 0.5);
     for (std::vector<HalfEdgeIter>::const_iterator it = boundaries.begin(); it != boundaries.end(); it++) {
         HalfEdgeCIter he = *it;
         
@@ -88,32 +88,46 @@ void Mesh::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) co
     E.setFromTriplets(ETriplets.begin(), ETriplets.end());
 }
 
-double residual(const Eigen::SparseMatrix<std::complex<double>>& A, const Eigen::VectorXcd& x)
+void Mesh::buildMassMatrix(Eigen::SparseMatrix<std::complex<double>>& M) const
 {
-    Eigen::VectorXcd b = A*x;
-    std::complex<double> lambda = x.dot(b);
-    return (b - lambda*x).norm();
+    std::vector<Eigen::Triplet<std::complex<double>>> MTriplets;
+    
+    for (VertexCIter v = vertices.begin(); v != vertices.end(); v++) {
+        MTriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index, v->index, v->dualArea()));
+    }
+    
+    M.setFromTriplets(MTriplets.begin(), MTriplets.end());
 }
 
-void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A, Eigen::VectorXcd& x)
+double residual(const Eigen::SparseMatrix<std::complex<double>>& A,
+                const Eigen::SparseMatrix<std::complex<double>>& M,
+                const Eigen::VectorXcd& x)
+{
+    Eigen::VectorXcd b = A*x;
+    std::complex<double> lambda = x.adjoint().dot(b) / x.adjoint().dot(M*x);
+    return (b - lambda*M*x).norm() / x.norm();
+}
+
+void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A,
+                             const Eigen::SparseMatrix<std::complex<double>>& M,
+                             const Eigen::VectorXcd& id, Eigen::VectorXcd& x)
 {
     // uses inverse power method to compute smallest eigenvalue
     // subject to constraints <x, 1> = 0 and |x| = 1
     
     // prefactor
     Eigen::SimplicialCholesky<Eigen::SparseMatrix<std::complex<double>>> solver(A);
-    int s = (int)x.size();
+    const Eigen::VectorXcd Mid = M * id;
     
-    while (residual(A, x) > EPSILON) {
+    while (residual(A, M, x) > EPSILON) {
         // backsolve
-        x = solver.solve(x);
+        x = solver.solve(M*x);
         
-        // subtract mean
-        std::complex<double> mean = x.sum() / (double)s;
-        for (int i = 0; i < s; i++) x(i) -= mean;
+        // center
+        x -= std::conj(x.adjoint().dot(Mid))*id;
         
         // normalize
-        x.normalize();
+        x /= sqrt(std::norm(x.adjoint().dot(M*x)));
     }
 }
 
@@ -124,22 +138,37 @@ void Mesh::parameterize()
     // build conformal energy
     Eigen::SparseMatrix<std::complex<double>> E(v, v);
     buildConformalEnergy(E);
+    
+    // build mass matrix
+    Eigen::SparseMatrix<std::complex<double>> M(v, v);
+    buildMassMatrix(M);
 
     // find eigenvector corresponding to smallest eigenvalue
+    Eigen::VectorXcd id = Eigen::VectorXcd::Ones(v); id /= sqrt(std::norm(id.adjoint().dot(M*id)));
     Eigen::VectorXcd z = Eigen::VectorXcd::Random(v);
-    solveInversePowerMethod(E, z);
+    solveInversePowerMethod(E, M, id, z);
 
     // set uv coords
-    double max = 0.0;
+    Eigen::Vector2d avg = Eigen::Vector2d::Zero();
     for (VertexIter v = vertices.begin(); v != vertices.end(); v++) {
         v->uv(0) = z(v->index).real();
         v->uv(1) = z(v->index).imag();
-        max = std::max(max, v->uv.norm());
+        avg += v->uv;
+    }
+    avg /= v;
+    
+    // compute areas
+    double area = 0.0;
+    double uvArea = 0.0;
+    for (FaceCIter f = faces.begin(); f != faces.end(); f++) {
+        area += f->area();
+        uvArea += f->uvArea();
     }
     
     // normalize uvs
+    double scale = sqrt(area / uvArea);
     for (VertexIter v = vertices.begin(); v != vertices.end(); v++) {
-        v->uv /= max;
+        v->uv = scale*(v->uv - avg);
     }
 }
 
