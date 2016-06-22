@@ -54,8 +54,8 @@ void Mesh::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) co
         HalfEdgeCIter he = v->he;
         double sumCoefficients = 0.0;
         do {
-            // (cotA + cotB) / 2
-            double coefficient = 0.5 * (he->cotan() + he->flip->cotan());
+            // (cotA + cotB) / 4
+            double coefficient = 0.25 * (he->cotan() + he->flip->cotan());
             sumCoefficients += coefficient;
             
             ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index,
@@ -70,7 +70,7 @@ void Mesh::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) co
     }
 
     // subtract area term from dirichlet energy
-    std::complex<double> i(0, 0.5);
+    std::complex<double> i(0, 0.25);
     for (std::vector<HalfEdgeIter>::const_iterator it = boundaries.begin(); it != boundaries.end(); it++) {
         HalfEdgeCIter he = *it;
         
