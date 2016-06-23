@@ -60,13 +60,13 @@ void Mesh::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) co
             
             ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index,
                                                                      he->flip->vertex->index,
-                                                                     coefficient));
+                                                                     -coefficient));
             
             he = he->flip->next;
         } while (he != v->he);
         
         ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index, v->index,
-                                                                 -sumCoefficients + EPSILON));
+                                                                 sumCoefficients));
     }
 
     // subtract area term from dirichlet energy
@@ -78,8 +78,8 @@ void Mesh::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) co
             int id1 = he->vertex->index;
             int id2 = he->flip->vertex->index;
             
-            ETriplets.push_back(Eigen::Triplet<std::complex<double>>(id1, id2, i));
-            ETriplets.push_back(Eigen::Triplet<std::complex<double>>(id2, id1, -i));
+            ETriplets.push_back(Eigen::Triplet<std::complex<double>>(id1, id2, -i));
+            ETriplets.push_back(Eigen::Triplet<std::complex<double>>(id2, id1, i));
             
             he = he->next;
         } while (he != *it);
@@ -142,6 +142,8 @@ void Mesh::parameterize()
     // build mass matrix
     Eigen::SparseMatrix<std::complex<double>> M(v, v);
     buildMassMatrix(M);
+    
+    E += std::complex<double>(EPSILON)*M;
 
     // find eigenvector corresponding to smallest eigenvalue
     Eigen::VectorXcd id = Eigen::VectorXcd::Ones(v); id /= sqrt(std::norm(id.adjoint().dot(M*id)));
@@ -181,14 +183,10 @@ void Mesh::normalize()
     }
     cm /= (double)vertices.size();
     
-    // translate to origin
+    // translate to origin and determine radius
+    double rMax = 0;
     for (VertexIter v = vertices.begin(); v != vertices.end(); v++) {
         v->position -= cm;
-    }
-    
-    // determine radius
-    double rMax = 0;
-    for (VertexCIter v = vertices.begin(); v != vertices.end(); v++) {
         rMax = std::max(rMax, v->position.norm());
     }
     
