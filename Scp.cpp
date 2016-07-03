@@ -65,28 +65,25 @@ void Scp::buildMassMatrix(Eigen::SparseMatrix<std::complex<double>>& M) const
 }
 
 double residual(const Eigen::SparseMatrix<std::complex<double>>& A,
-                const Eigen::SparseMatrix<std::complex<double>>& M,
                 const Eigen::VectorXcd& x)
 {
     Eigen::VectorXcd b = A*x;
-    std::complex<double> lambda = x.adjoint().dot(b) / x.adjoint().dot(M*x);
-    return (b - lambda*M*x).norm() / x.norm();
+    std::complex<double> lambda = x.adjoint().dot(b) / x.adjoint().dot(x);
+    return (b - lambda*x).norm() / x.norm();
 }
 
 void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A,
-                             const Eigen::SparseMatrix<std::complex<double>>& M,
-                             const Eigen::VectorXcd& id, Eigen::VectorXcd& x)
+                             Eigen::VectorXcd& x)
 {
     // uses inverse power method to compute smallest eigenvalue
     // subject to constraints <x, 1> = 0 and |x| = 1
     
     // prefactor
     Eigen::SimplicialCholesky<Eigen::SparseMatrix<std::complex<double>>> solver(A);
-    const Eigen::VectorXcd Mid = M * id;
     
     for (int i = 0; i < MAX_ITER; i++) {
         // backsolve
-        x = solver.solve(M*x);
+        x = solver.solve(x);
         
         // center
         std::complex<double> mean = x.sum() / (double)x.size();
@@ -96,7 +93,7 @@ void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A,
         x.normalize();
     }
     
-    std::cout << "residual: " << residual(A, M, x) << std::endl;
+    std::cout << "residual: " << residual(A, x) << std::endl;
 }
 
 void Scp::setUvs(const Eigen::VectorXcd& z)
@@ -125,9 +122,8 @@ void Scp::parameterize()
     E += std::complex<double>(EPSILON)*M;
     
     // find eigenvector corresponding to smallest eigenvalue
-    Eigen::VectorXcd id = Eigen::VectorXcd::Ones(v); id /= sqrt(std::norm(id.adjoint().dot(M*id)));
     Eigen::VectorXcd z = Eigen::VectorXcd::Random(v);
-    solveInversePowerMethod(E, M, id, z);
+    solveInversePowerMethod(E, z);
     
     // set uv coords
     setUvs(z);
