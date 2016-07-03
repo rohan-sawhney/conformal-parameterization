@@ -89,10 +89,11 @@ void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A,
         x = solver.solve(M*x);
         
         // center
-        x -= std::conj(x.adjoint().dot(Mid))*id;
+        std::complex<double> mean = x.sum() / (double)x.size();
+        for (int i = 0; i < x.size(); i++) x(i) -= mean;
         
         // normalize
-        x /= sqrt(std::norm(x.adjoint().dot(M*x)));
+        x.normalize();
     }
     
     std::cout << "residual: " << residual(A, M, x) << std::endl;
