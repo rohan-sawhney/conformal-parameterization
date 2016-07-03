@@ -9,6 +9,9 @@
 #include "math.h"
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#define EPSILON 1e-8
+#define LSCM 0
+#define SCP 1
 
 class Vertex;
 class Edge;

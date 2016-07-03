@@ -85,6 +85,8 @@ void MeshIO::preallocateMeshElements(const MeshData& data, Mesh& mesh)
     
     mesh.halfEdges.clear();
     mesh.vertices.clear();
+    mesh.uvs.clear();
+    mesh.normals.clear();
     mesh.edges.clear();
     mesh.faces.clear();
     mesh.boundaries.clear();
@@ -95,11 +97,17 @@ void MeshIO::preallocateMeshElements(const MeshData& data, Mesh& mesh)
     mesh.faces.reserve(nF + nB);
 }
 
-void MeshIO::indexVertices(Mesh& mesh)
+void MeshIO::indexElements(Mesh& mesh)
 {
     int index = 0;
     for (VertexIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
         v->index = index;
+        index ++;
+    }
+    
+    index = 0;
+    for (FaceIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
+        f->index = index;
         index ++;
     }
 }
@@ -317,7 +325,7 @@ bool MeshIO::buildMesh(const MeshData& data, Mesh& mesh)
         }
     }
     
-    indexVertices(mesh);
+    indexElements(mesh);
     checkIsolatedVertices(mesh);
     checkNonManifoldVertices(mesh);
     

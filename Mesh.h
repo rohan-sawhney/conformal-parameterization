@@ -6,7 +6,6 @@
 #include "Edge.h"
 #include "Face.h"
 #include "HalfEdge.h"
-#include <Eigen/SparseCore>
 
 class Mesh {
 public:
@@ -23,7 +22,7 @@ public:
     bool write(const std::string& fileName) const;
     
     // computes conformal parameterization
-    void parameterize();
+    void parameterize(const int& technique);
         
     // member variables
     std::vector<HalfEdge> halfEdges;
@@ -35,12 +34,6 @@ public:
     std::vector<HalfEdgeIter> boundaries;
 
 private:
-    // EC = ED - A
-    void buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) const;
-    
-    // builds mass matrix
-    void buildMassMatrix(Eigen::SparseMatrix<std::complex<double>>& M) const;
-    
     // center mesh about origin and rescale to unit radius
     void normalize();
 };
