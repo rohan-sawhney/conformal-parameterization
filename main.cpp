@@ -28,7 +28,7 @@ Mesh mesh;
 bool success = true;
 GLubyte checkerboard[WIDTH][HEIGHT][4];
 GLuint texName;
-int technique = SCP;
+int technique = LSCM;
 
 void printInstructions()
 {
