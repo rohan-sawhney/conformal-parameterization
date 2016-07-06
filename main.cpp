@@ -221,6 +221,10 @@ void keyboard(unsigned char key, int x0, int y0)
             break;
     }
     
+    std::string title = "Conformal Parameterization, Mode = ";
+    title += ((technique == LSCM) ? "LSCM" : "SCP");
+    glutSetWindowTitle(title.c_str());
+    
     glutPostRedisplay();
 }
 
@@ -289,7 +293,7 @@ int main(int argc, char** argv) {
     glutInitWindowSize(gridX, gridY);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInit(&argc, argv);
-    glutCreateWindow("Conformal Parameterization");
+    glutCreateWindow("Conformal Parameterization, Mode = LSCM");
     init();
     glutDisplayFunc(display);
     glutKeyboardFunc(keyboard);
