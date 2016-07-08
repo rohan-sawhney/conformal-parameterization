@@ -64,6 +64,7 @@ void computeLocalBasisCoordinates(std::vector<Eigen::Vector2d>& coords,
 
 bool Lscm::isPinnedVertex(const int& vIndex, int& shift, Eigen::Vector2d& pinnedPosition) const
 {
+    shift = 0;
     for (size_t i = 0; i < pinnedVertices.size(); i++) {
         if (pinnedVertices[i] == vIndex) {
             pinnedPosition = pinnedPositions[i];
@@ -104,13 +105,13 @@ void Lscm::buildMassMatrix(Eigen::SparseMatrix<double>& M, Eigen::VectorXd& b) c
             
             // set M entries
             for (int i = 0; i < 3; i++) {
-                int shift = 0;
+                int shift;
                 Eigen::Vector2d pinnedPosition;
                 const Eigen::Vector2d& w(ws[i]);
                 
                 if (isPinnedVertex(indices[i], shift, pinnedPosition)) {
-                    b(fIndex) = -(w.x()*pinnedPosition.x() - w.y()*pinnedPosition.y());
-                    b(fIndex+1) = -(w.y()*pinnedPosition.x() + w.x()*pinnedPosition.y());
+                    b(fIndex) -= (w.x()*pinnedPosition.x() - w.y()*pinnedPosition.y());
+                    b(fIndex+1) -= (w.y()*pinnedPosition.x() + w.x()*pinnedPosition.y());
                     
                 } else {
                     int vIndex = indices[i] - shift;
@@ -150,7 +151,7 @@ void Lscm::setUvs(const Eigen::VectorXd& x)
     for (VertexIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
         int vIndex = 2*v->index;
         
-        int shift = 0;
+        int shift;
         Eigen::Vector2d pinnedPosition;
         if (isPinnedVertex(vIndex, shift, pinnedPosition)) {
             v->uv(0) = pinnedPosition.x();
