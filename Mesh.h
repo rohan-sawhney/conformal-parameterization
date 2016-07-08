@@ -34,6 +34,9 @@ public:
     std::vector<HalfEdgeIter> boundaries;
 
 private:
+    // set quasi conformal error
+    void setQcError();
+    
     // center mesh about origin and rescale to unit radius
     void normalize();
 };

@@ -11,6 +11,9 @@ public:
     // id between 0 and |F|-1
     int index;
     
+    // error
+    Eigen::Vector3d error;
+    
     // checks if this face lies on boundary
     bool isBoundary() const;
     

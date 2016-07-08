@@ -19,6 +19,7 @@
 		3259ADD91BA49E5A0014C457 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3259ADCE1BA49E5A0014C457 /* Mesh.cpp */; };
 		3259ADDA1BA49E5A0014C457 /* MeshIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3259ADD01BA49E5A0014C457 /* MeshIO.cpp */; };
 		3259ADDB1BA49E5A0014C457 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3259ADD31BA49E5A0014C457 /* Vertex.cpp */; };
+		327FC5581D303C4A00D98296 /* QcError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327FC5561D303C4A00D98296 /* QcError.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -57,6 +58,8 @@
 		3259ADD21BA49E5A0014C457 /* Types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Types.h; sourceTree = "<group>"; };
 		3259ADD31BA49E5A0014C457 /* Vertex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Vertex.cpp; sourceTree = "<group>"; };
 		3259ADD41BA49E5A0014C457 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
+		327FC5561D303C4A00D98296 /* QcError.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QcError.cpp; sourceTree = "<group>"; };
+		327FC5571D303C4A00D98296 /* QcError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QcError.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +109,8 @@
 				3240208B1D28B1840081F5B6 /* Scp.h */,
 				3240208D1D28B18E0081F5B6 /* Lscm.cpp */,
 				3240208E1D28B18E0081F5B6 /* Lscm.h */,
+				327FC5561D303C4A00D98296 /* QcError.cpp */,
+				327FC5571D303C4A00D98296 /* QcError.h */,
 				3259ADCE1BA49E5A0014C457 /* Mesh.cpp */,
 				3259ADCF1BA49E5A0014C457 /* Mesh.h */,
 				3259ADD01BA49E5A0014C457 /* MeshIO.cpp */,
@@ -175,6 +180,7 @@
 			files = (
 				3259ADDB1BA49E5A0014C457 /* Vertex.cpp in Sources */,
 				3259ADD71BA49E5A0014C457 /* HalfEdge.cpp in Sources */,
+				327FC5581D303C4A00D98296 /* QcError.cpp in Sources */,
 				3259ADD61BA49E5A0014C457 /* Face.cpp in Sources */,
 				3259ADD81BA49E5A0014C457 /* main.cpp in Sources */,
 				3240208F1D28B18E0081F5B6 /* Lscm.cpp in Sources */,

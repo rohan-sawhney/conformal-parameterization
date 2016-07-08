@@ -7,6 +7,9 @@
 #include "Mesh.h"
 #define WIDTH 64
 #define HEIGHT 64
+#define TEXTURE 0
+#define WIREFRAME 1
+#define ERROR 2
 
 int gridX = 600;
 int gridY = 600;
@@ -20,7 +23,7 @@ double eyeX = 0.0, eyeY = 0.0, eyeZ = 4.5; // camera points initially along y-ax
 double upX = 0.0, upY = 1.0, upZ = 0.0; // camera points initially along y-axis
 double r = 4.5, theta = 0.0, phi = 0.0;
 int currTri = 0;
-bool texture = true;
+int drawMode = TEXTURE;
 
 std::string path = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/bunnyhead.obj";
 
@@ -91,12 +94,12 @@ void drawTexture()
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     glBindTexture(GL_TEXTURE_2D, texName);
     
+    glBegin(GL_TRIANGLES);
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
         
         if (f->isBoundary()) continue;
         
         // draw flattened
-        glBegin(GL_TRIANGLES);
         HalfEdgeCIter he = f->he;
         do {
             glTexCoord2d(he->vertex->uv.x(), he->vertex->uv.y());
@@ -116,8 +119,8 @@ void drawTexture()
             
             he = he->next;
         } while (he != f->he);
-        glEnd();
     }
+    glEnd();
 }
 
 bool faceContainsEdge(const int vId1, const int vId2)
@@ -165,6 +168,40 @@ void drawWireframe()
     glEnd();
 }
 
+void drawError()
+{
+    glDisable(GL_TEXTURE_2D);
+    
+    glBegin(GL_TRIANGLES);
+    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
+        
+        if (f->isBoundary()) continue;
+        glColor4f(f->error.x(), f->error.y(), f->error.z(), 0.6);
+        
+        // draw flattened
+        HalfEdgeCIter he = f->he;
+        do {
+            glTexCoord2d(he->vertex->uv.x(), he->vertex->uv.y());
+            glVertex3d(he->vertex->uv.x() - 0.75,
+                       he->vertex->uv.y(),
+                       0);
+            
+            he = he->next;
+        } while (he != f->he);
+        
+        // draw positions
+        do {
+            glTexCoord2d(he->vertex->uv.x(), he->vertex->uv.y());
+            glVertex3d(he->vertex->position.x() + 1.25,
+                       he->vertex->position.y(),
+                       he->vertex->position.z());
+            
+            he = he->next;
+        } while (he != f->he);
+    }
+    glEnd();
+}
+
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -183,8 +220,9 @@ void display()
     gluLookAt(eyeX, eyeY, eyeZ, x, y, z, upX, upY, upZ);
     
     if (success) {
-        if (texture) drawTexture();
-        else drawWireframe();
+        if (drawMode == TEXTURE) drawTexture();
+        else if (drawMode == WIREFRAME) drawWireframe();
+        else drawError();
     }
 
     glutSwapBuffers();
@@ -201,7 +239,7 @@ void keyboard(unsigned char key, int x0, int y0)
             if (success) mesh.parameterize(technique);
             break;
         case 't':
-            texture = !texture;
+            drawMode = (drawMode+1)%3;
             break;
         case 'a':
             x -= 0.03;
@@ -238,13 +276,13 @@ void special(int i, int x0, int y0)
             z += 0.03;
             break;
         case GLUT_KEY_LEFT:
-            if (!texture) {
+            if (drawMode == WIREFRAME) {
                 currTri --;
                 if (currTri < 0) currTri = (int)mesh.faces.size()-1;
             }
             break;
         case GLUT_KEY_RIGHT:
-            if (!texture) {
+            if (drawMode == WIREFRAME) {
                 currTri ++;
                 if (currTri == (int)mesh.faces.size()) currTri = 0;
             }
