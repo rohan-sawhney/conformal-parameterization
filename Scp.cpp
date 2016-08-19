@@ -50,6 +50,10 @@ void Scp::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) con
         } while (he != *it);
     }
     
+    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
+        ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index, v->index, EPSILON));
+    }
+    
     E.setFromTriplets(ETriplets.begin(), ETriplets.end());
 }
 
@@ -118,9 +122,7 @@ void Scp::parameterize()
     // build mass matrix
     Eigen::SparseMatrix<std::complex<double>> M(v, v);
     buildMassMatrix(M);
-    
-    E += std::complex<double>(EPSILON)*M;
-    
+        
     // find eigenvector corresponding to smallest eigenvalue
     Eigen::VectorXcd z = Eigen::VectorXcd::Random(v);
     solveInversePowerMethod(E, z);
