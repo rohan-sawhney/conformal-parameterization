@@ -20,8 +20,8 @@ public:
     // checks if vertex is contained in any edge or face
     bool isIsolated() const;
     
-    // returns area of barycentric dual cell associated with the vertex
-    double dualArea() const;
+    // returns angle weighted vertex normal
+    Eigen::Vector3d normal() const;
 };
 
 #endif

@@ -2,16 +2,17 @@
 #include <Eigen/SparseCholesky>
 
 Lscm::Lscm(Mesh& mesh0):
-Parameterizer(mesh0)
+Parameterization(mesh0)
 {
     
 }
 
-void Lscm::findDiameterVertices()
+void Lscm::pinVertices()
 {
     pinnedVertices.resize(2);
     pinnedPositions = {Eigen::Vector2d(-0.5, 0), Eigen::Vector2d(0.5, 0)};
     
+     // pin diameter vertices on longest boundary loop
     double max = 0.0;
     for (std::vector<HalfEdgeIter>::const_iterator it1 = mesh.boundaries.begin();
                                                    it1 != mesh.boundaries.end();
@@ -172,8 +173,8 @@ void Lscm::parameterize()
     int f = 2*((int)mesh.faces.size()-1); // -1 for boundary
     int v = 2*((int)mesh.vertices.size()-2);
     
-    // find diameter vertices to pin
-    findDiameterVertices();
+    // pin vertices
+    pinVertices();
     
     // build mass matrix and handle boundary conditions
     Eigen::SparseMatrix<double> M(f, v);

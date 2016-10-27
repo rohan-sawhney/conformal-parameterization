@@ -24,19 +24,3 @@ double Face::area() const
     
     return 0.5 * normal().norm();
 }
-
-double Face::uvArea() const
-{
-    if (isBoundary()) {
-        return 0;
-    }
-    
-    const Eigen::Vector2d& a(he->vertex->uv);
-    const Eigen::Vector2d& b(he->next->vertex->uv);
-    const Eigen::Vector2d& c(he->next->next->vertex->uv);
-    
-    const Eigen::Vector2d u = b - a;
-    const Eigen::Vector2d v = c - a;
-    
-    return 0.5 * (u.x()*v.y() - v.x()*u.y());
-}

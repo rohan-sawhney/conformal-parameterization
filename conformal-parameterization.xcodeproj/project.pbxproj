@@ -7,11 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		324020891D28B1750081F5B6 /* Parameterizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 324020871D28B1750081F5B6 /* Parameterizer.cpp */; };
 		3240208C1D28B1840081F5B6 /* Scp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3240208A1D28B1840081F5B6 /* Scp.cpp */; };
 		3240208F1D28B18E0081F5B6 /* Lscm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3240208D1D28B18E0081F5B6 /* Lscm.cpp */; };
-		3259ADC41BA49DF20014C457 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3259ADC31BA49DF20014C457 /* OpenGL.framework */; };
-		3259ADC61BA49DF90014C457 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3259ADC51BA49DF90014C457 /* GLUT.framework */; };
+		325148B91DC01E8E008DD16F /* Parameterization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 325148B71DC01E8E008DD16F /* Parameterization.cpp */; };
 		3259ADD51BA49E5A0014C457 /* Edge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3259ADC71BA49E5A0014C457 /* Edge.cpp */; };
 		3259ADD61BA49E5A0014C457 /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3259ADC91BA49E5A0014C457 /* Face.cpp */; };
 		3259ADD71BA49E5A0014C457 /* HalfEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3259ADCB1BA49E5A0014C457 /* HalfEdge.cpp */; };
@@ -20,6 +18,11 @@
 		3259ADDA1BA49E5A0014C457 /* MeshIO.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3259ADD01BA49E5A0014C457 /* MeshIO.cpp */; };
 		3259ADDB1BA49E5A0014C457 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3259ADD31BA49E5A0014C457 /* Vertex.cpp */; };
 		327FC5581D303C4A00D98296 /* QcError.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327FC5561D303C4A00D98296 /* QcError.cpp */; };
+		32B47D6E1DC0F20900BC7642 /* Shader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47D6C1DC0F20900BC7642 /* Shader.cpp */; };
+		32B47D711DC0FD8E00BC7642 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47D6F1DC0FD8E00BC7642 /* Camera.cpp */; };
+		32B47D741DC1295300BC7642 /* RenderData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47D721DC1295300BC7642 /* RenderData.cpp */; };
+		32B47D761DC16E6100BC7642 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3259ADC51BA49DF90014C457 /* GLUT.framework */; };
+		32B47D771DC16E6700BC7642 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3259ADC31BA49DF20014C457 /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -35,12 +38,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		324020871D28B1750081F5B6 /* Parameterizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parameterizer.cpp; sourceTree = "<group>"; };
-		324020881D28B1750081F5B6 /* Parameterizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parameterizer.h; sourceTree = "<group>"; };
 		3240208A1D28B1840081F5B6 /* Scp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scp.cpp; sourceTree = "<group>"; };
 		3240208B1D28B1840081F5B6 /* Scp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scp.h; sourceTree = "<group>"; };
 		3240208D1D28B18E0081F5B6 /* Lscm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Lscm.cpp; sourceTree = "<group>"; };
 		3240208E1D28B18E0081F5B6 /* Lscm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lscm.h; sourceTree = "<group>"; };
+		325148B71DC01E8E008DD16F /* Parameterization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parameterization.cpp; sourceTree = "<group>"; };
+		325148B81DC01E8E008DD16F /* Parameterization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Parameterization.h; sourceTree = "<group>"; };
 		3259ADB91BA49DE70014C457 /* conformal-parameterization */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "conformal-parameterization"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3259ADC31BA49DF20014C457 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		3259ADC51BA49DF90014C457 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
@@ -60,6 +63,13 @@
 		3259ADD41BA49E5A0014C457 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
 		327FC5561D303C4A00D98296 /* QcError.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QcError.cpp; sourceTree = "<group>"; };
 		327FC5571D303C4A00D98296 /* QcError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QcError.h; sourceTree = "<group>"; };
+		32B47D6C1DC0F20900BC7642 /* Shader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shader.cpp; sourceTree = "<group>"; };
+		32B47D6D1DC0F20900BC7642 /* Shader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shader.h; sourceTree = "<group>"; };
+		32B47D6F1DC0FD8E00BC7642 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
+		32B47D701DC0FD8E00BC7642 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
+		32B47D721DC1295300BC7642 /* RenderData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderData.cpp; sourceTree = "<group>"; };
+		32B47D731DC1295300BC7642 /* RenderData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderData.h; sourceTree = "<group>"; };
+		32B47D751DC13B7700BC7642 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; path = shaders; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -67,8 +77,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3259ADC61BA49DF90014C457 /* GLUT.framework in Frameworks */,
-				3259ADC41BA49DF20014C457 /* OpenGL.framework in Frameworks */,
+				32B47D771DC16E6700BC7642 /* OpenGL.framework in Frameworks */,
+				32B47D761DC16E6100BC7642 /* GLUT.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,30 +106,61 @@
 		3259ADDC1BA49E640014C457 /* conformal-parameterization */ = {
 			isa = PBXGroup;
 			children = (
+				3259ADCD1BA49E5A0014C457 /* main.cpp */,
+				32B47D781DC1B8BD00BC7642 /* core */,
+				32B47D791DC1B8DA00BC7642 /* parameterization */,
+				32B47D7B1DC1B8F600BC7642 /* rendering */,
+			);
+			name = "conformal-parameterization";
+			sourceTree = "<group>";
+		};
+		32B47D781DC1B8BD00BC7642 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				3259ADD31BA49E5A0014C457 /* Vertex.cpp */,
+				3259ADD41BA49E5A0014C457 /* Vertex.h */,
 				3259ADC71BA49E5A0014C457 /* Edge.cpp */,
 				3259ADC81BA49E5A0014C457 /* Edge.h */,
 				3259ADC91BA49E5A0014C457 /* Face.cpp */,
 				3259ADCA1BA49E5A0014C457 /* Face.h */,
 				3259ADCB1BA49E5A0014C457 /* HalfEdge.cpp */,
 				3259ADCC1BA49E5A0014C457 /* HalfEdge.h */,
-				3259ADCD1BA49E5A0014C457 /* main.cpp */,
-				324020871D28B1750081F5B6 /* Parameterizer.cpp */,
-				324020881D28B1750081F5B6 /* Parameterizer.h */,
+				3259ADCE1BA49E5A0014C457 /* Mesh.cpp */,
+				3259ADCF1BA49E5A0014C457 /* Mesh.h */,
+				3259ADD01BA49E5A0014C457 /* MeshIO.cpp */,
+				3259ADD11BA49E5A0014C457 /* MeshIO.h */,
+				3259ADD21BA49E5A0014C457 /* Types.h */,
+			);
+			name = core;
+			sourceTree = "<group>";
+		};
+		32B47D791DC1B8DA00BC7642 /* parameterization */ = {
+			isa = PBXGroup;
+			children = (
+				325148B71DC01E8E008DD16F /* Parameterization.cpp */,
+				325148B81DC01E8E008DD16F /* Parameterization.h */,
 				3240208A1D28B1840081F5B6 /* Scp.cpp */,
 				3240208B1D28B1840081F5B6 /* Scp.h */,
 				3240208D1D28B18E0081F5B6 /* Lscm.cpp */,
 				3240208E1D28B18E0081F5B6 /* Lscm.h */,
 				327FC5561D303C4A00D98296 /* QcError.cpp */,
 				327FC5571D303C4A00D98296 /* QcError.h */,
-				3259ADCE1BA49E5A0014C457 /* Mesh.cpp */,
-				3259ADCF1BA49E5A0014C457 /* Mesh.h */,
-				3259ADD01BA49E5A0014C457 /* MeshIO.cpp */,
-				3259ADD11BA49E5A0014C457 /* MeshIO.h */,
-				3259ADD21BA49E5A0014C457 /* Types.h */,
-				3259ADD31BA49E5A0014C457 /* Vertex.cpp */,
-				3259ADD41BA49E5A0014C457 /* Vertex.h */,
 			);
-			name = "conformal-parameterization";
+			name = parameterization;
+			sourceTree = "<group>";
+		};
+		32B47D7B1DC1B8F600BC7642 /* rendering */ = {
+			isa = PBXGroup;
+			children = (
+				32B47D6F1DC0FD8E00BC7642 /* Camera.cpp */,
+				32B47D701DC0FD8E00BC7642 /* Camera.h */,
+				32B47D721DC1295300BC7642 /* RenderData.cpp */,
+				32B47D731DC1295300BC7642 /* RenderData.h */,
+				32B47D6C1DC0F20900BC7642 /* Shader.cpp */,
+				32B47D6D1DC0F20900BC7642 /* Shader.h */,
+				32B47D751DC13B7700BC7642 /* shaders */,
+			);
+			name = rendering;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -178,16 +219,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32B47D711DC0FD8E00BC7642 /* Camera.cpp in Sources */,
+				32B47D741DC1295300BC7642 /* RenderData.cpp in Sources */,
 				3259ADDB1BA49E5A0014C457 /* Vertex.cpp in Sources */,
 				3259ADD71BA49E5A0014C457 /* HalfEdge.cpp in Sources */,
+				325148B91DC01E8E008DD16F /* Parameterization.cpp in Sources */,
 				327FC5581D303C4A00D98296 /* QcError.cpp in Sources */,
 				3259ADD61BA49E5A0014C457 /* Face.cpp in Sources */,
 				3259ADD81BA49E5A0014C457 /* main.cpp in Sources */,
 				3240208F1D28B18E0081F5B6 /* Lscm.cpp in Sources */,
 				3259ADD51BA49E5A0014C457 /* Edge.cpp in Sources */,
-				324020891D28B1750081F5B6 /* Parameterizer.cpp in Sources */,
 				3240208C1D28B1840081F5B6 /* Scp.cpp in Sources */,
 				3259ADDA1BA49E5A0014C457 /* MeshIO.cpp in Sources */,
+				32B47D6E1DC0F20900BC7642 /* Shader.cpp in Sources */,
 				3259ADD91BA49E5A0014C457 /* Mesh.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -279,6 +323,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					/usr/local/Cellar/eigen/3.2.4/include/eigen3,
+					/usr/local/Cellar/glm/0.9.7.4/include,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -291,6 +336,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					/usr/local/Cellar/eigen/3.2.4/include/eigen3,
+					/usr/local/Cellar/glm/0.9.7.4/include,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

@@ -2,18 +2,20 @@
 #define PARAMETERIZER_H
 
 #include "Mesh.h"
-#include <Eigen/SparseCore>
 
-class Parameterizer {
+class Parameterization {
 public:
     // constructor
-    Parameterizer(Mesh& mesh0);
+    Parameterization(Mesh& mesh0);
     
     // destructor
-    virtual ~Parameterizer() {}
+    virtual ~Parameterization() {}
     
     // flatten
     virtual void parameterize() = 0;
+    
+    // computes quasi conformal error
+    void computeQcError();
     
 protected:
     // normalize

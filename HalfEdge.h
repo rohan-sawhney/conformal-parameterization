@@ -20,11 +20,8 @@ public:
     // face associated with this halfedge
     FaceIter face;
     
-    // uv associated with vertex at tail of halfedge
-    Eigen::Vector3d uv;
-    
-    // normal associated with vertex at tail of halfedge
-    Eigen::Vector3d normal;
+    // id between 0 and |H|-1
+    int index;
     
     // checks if this halfedge is contained in boundary loop
     bool onBoundary;

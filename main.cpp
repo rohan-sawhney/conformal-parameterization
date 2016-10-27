@@ -1,340 +1,371 @@
-#ifdef __APPLE_CC__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
 #include "Mesh.h"
-#define WIDTH 64
-#define HEIGHT 64
-#define TEXTURE 0
-#define WIREFRAME 1
-#define ERROR 2
+#include "RenderData.h"
+#include "Camera.h"
+
+#define ESCAPE 27
+#define DIGIT_OFFSET 48
 
 int gridX = 600;
 int gridY = 600;
-int gridZ = 600;
 
-const double fovy = 50.;
-const double clipNear = .01;
-const double clipFar = 1000.;
-double x = 0.0, y = 0.0, z = 0.0;
-double eyeX = 0.0, eyeY = 0.0, eyeZ = 4.5; // camera points initially along y-axis
-double upX = 0.0, upY = 1.0, upZ = 0.0; // camera points initially along y-axis
-double r = 4.5, theta = 0.0, phi = 0.0;
-int currTri = 0;
-int drawMode = TEXTURE;
+GLuint transformUbo;
+GLuint lightUbo;
 
-std::string path = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/bunnyhead.obj";
+const std::string path = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/bunnyhead.obj";
+const std::string shaderPath = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/shaders/";
+Shader meshShader(shaderPath);
+Shader normalShader(shaderPath);
+Shader wireframeShader(shaderPath);
+Shader checkerboardShader(shaderPath);
 
-Mesh mesh;
+Camera camera;
+float lastTime = 0.0;
+float dt = 0.0;
+float lastX = 0.0, lastY = 0.0;
+bool keys[256];
+bool firstMouse = true;
+
+Mesh mesh, parameterMesh;
+GLMesh glMesh(mesh), glParameterMesh(parameterMesh);
+Eigen::Matrix4f transform;
+
+std::vector<Eigen::Vector3f> defaultColors;
+std::vector<Eigen::Vector3f> qcErrors;
+
+const Eigen::Vector3f lightPosition(0.0, 3.0, -3.0);
+const Eigen::Vector3f lightColor(1.0, 1.0, 1.0);
+
 bool success = true;
-GLubyte checkerboard[WIDTH][HEIGHT][4];
-GLuint texName;
-int technique = LSCM;
+bool showCheckerboard = false;
+bool showQcError = false;
+bool showWireframe = false;
+bool showNormals = false;
+
+void setupShaders()
+{
+    meshShader.setup("Model.vert", "", "Model.frag");
+    normalShader.setup("Normal.vert", "Normal.geom", "Normal.frag");
+    wireframeShader.setup("Wireframe.vert", "", "Wireframe.frag");
+    checkerboardShader.setup("Model.vert", "", "Checkerboard.frag");
+}
+
+void setupUniformBlocks()
+{
+    // 1) generate transform indices
+    GLuint meshShaderIndex = glGetUniformBlockIndex(meshShader.program, "Transform");
+    GLuint normalShaderIndex = glGetUniformBlockIndex(normalShader.program, "Transform");
+    GLuint wireframeShaderIndex = glGetUniformBlockIndex(wireframeShader.program, "Transform");
+    GLuint checkerboardShaderIndex = glGetUniformBlockIndex(checkerboardShader.program, "Transform");
+    
+    // bind
+    glUniformBlockBinding(meshShader.program, meshShaderIndex, 0);
+    glUniformBlockBinding(normalShader.program, normalShaderIndex, 0);
+    glUniformBlockBinding(wireframeShader.program, wireframeShaderIndex, 0);
+    glUniformBlockBinding(checkerboardShader.program, checkerboardShaderIndex, 0);
+    
+    // add transform data
+    glGenBuffers(1, &transformUbo);
+    glBindBuffer(GL_UNIFORM_BUFFER, transformUbo);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, transformUbo);
+    glBufferData(GL_UNIFORM_BUFFER, 3*sizeof(Eigen::Matrix4f), NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    
+    // 2) generate light index
+    meshShaderIndex = glGetUniformBlockIndex(meshShader.program, "Light");
+    
+    // bind
+    glUniformBlockBinding(meshShader.program, meshShaderIndex, 1);
+    
+    // add light data
+    glGenBuffers(1, &lightUbo);
+    glBindBuffer(GL_UNIFORM_BUFFER, lightUbo);
+    glBufferData(GL_UNIFORM_BUFFER, 2*sizeof(Eigen::Vector4f), NULL, GL_STATIC_DRAW); // std140 alignment
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, lightUbo);
+    
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Eigen::Vector4f), lightPosition.data());
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Eigen::Vector4f), sizeof(Eigen::Vector4f), lightColor.data());
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
 
 void printInstructions()
 {
-    std::cerr << "' ': toggle between scp and lscm\n"
-              << "'t': toggle texture/wireframe\n"
-              << "↑/↓: move in/out\n"
-              << "→/←: change triangle in wireframe mode\n"
-              << "w/s: move up/down\n"
+    std::cerr << "1: scp\n"
+              << "2: lscm\n"
+              << "3: circle patterns\n"
+              << "4: cetm\n"
+              << "5: toggle checkerboard\n"
+              << "6: toggle quasi conformal error\n"
+              << "7: toggle normals\n"
+              << "8: toggle wireframe\n"
+              << "w/s: move in/out\n"
               << "a/d: move left/right\n"
-              << "r: reload\n"
+              << "e/q: move up/down\n"
+              << "→/←: update face correspondence\n"
               << "escape: exit program\n"
               << std::endl;
 }
 
-void buildCheckerboard()
+void setDefaultColors()
 {
-    for (int i = 0; i < WIDTH; i++) {
-        for (int j = 0; j < HEIGHT; j++) {
-            int c = (((i & 0x8) == 0) ^ ((j & 0x8) == 0)) * 255;
-            
-            if (c == 255) checkerboard[i][j][0] = 0;
-            else checkerboard[i][j][0] = (GLubyte) c;
-            
-            if (c == 255) checkerboard[i][j][1] = 0;
-            else checkerboard[i][j][1] = (GLubyte) c;
-            
-            checkerboard[i][j][2] = (GLubyte) c;
-            checkerboard[i][j][3] = (GLubyte) 255;
-        }
+    const Eigen::Vector3f blue(0.0, 0.0, 1.0);
+    defaultColors.resize(mesh.faces.size());
+    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
+        defaultColors[f->index] = blue;
     }
 }
 
-// Initialize OpenGL
+void updateErrors()
+{
+    qcErrors.resize(mesh.faces.size());
+    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
+        qcErrors[f->index] = Eigen::Vector3f(f->qcError.x(), f->qcError.y(), f->qcError.z());
+    }
+}
+
 void init()
 {
-    glClearColor (0.1, 0.1, 0.1, 0.0);
-    glShadeModel(GL_FLAT);
-    glEnable(GL_DEPTH_TEST);
-    
-    buildCheckerboard();
+    // enable depth testing and multisampling
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     
-    glGenTextures(1, &texName);
-    glBindTexture(GL_TEXTURE_2D, texName);
+    glClearColor(0.1, 0.1, 0.1, 1.0);
+    glClearDepth(1.0);
+    glDepthFunc(GL_LEQUAL);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                    GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, WIDTH,
-                 HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                 checkerboard);
-}
-
-void drawTexture()
-{
-    glEnable(GL_TEXTURE_2D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-    glBindTexture(GL_TEXTURE_2D, texName);
+    // setup shaders and blocks
+    setupShaders();
+    setupUniformBlocks();
     
-    glBegin(GL_TRIANGLES);
-    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        
-        if (f->isBoundary()) continue;
-        
-        // draw flattened
-        HalfEdgeCIter he = f->he;
-        do {
-            glTexCoord2d(he->vertex->uv.x(), he->vertex->uv.y());
-            glVertex3d(he->vertex->uv.x() - 0.75,
-                       he->vertex->uv.y(),
-                       0);
-            
-            he = he->next;
-        } while (he != f->he);
-        
-        // draw positions
-        do {
-            glTexCoord2d(he->vertex->uv.x(), he->vertex->uv.y());
-            glVertex3d(he->vertex->position.x() + 1.25,
-                       he->vertex->position.y(),
-                       he->vertex->position.z());
-            
-            he = he->next;
-        } while (he != f->he);
+    // read mesh
+    success = mesh.read(path) && parameterMesh.read(path);;
+    if (success) {
+        setDefaultColors();
+        glMesh.setup(defaultColors);
+        glParameterMesh.setup(defaultColors);
     }
-    glEnd();
+    
+    // print instructions
+    printInstructions();
 }
 
-bool faceContainsEdge(const int vId1, const int vId2)
+void uploadCameraTransforms()
 {
-    int c = 0;
-    HalfEdgeCIter he = mesh.faces[currTri].he;
-    do {
-        if (he->vertex->index == vId1 || he->vertex->index == vId2) c++;
-        
-        he = he->next;
-        
-    } while (he != mesh.faces[currTri].he);
+    // set camera transformations
+    glBindBuffer(GL_UNIFORM_BUFFER, transformUbo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
+                    glm::value_ptr(camera.projectionMatrix(gridX, gridY)));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
+                    glm::value_ptr(camera.viewMatrix()));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
-    if (c == 2) return true;
-    return false;
+    // set view position
+    meshShader.use();
+    glUniform3f(glGetUniformLocation(meshShader.program, "viewPosition"),
+                camera.pos.x(), camera.pos.y(), camera.pos.z());
 }
 
-void drawWireframe()
+void draw(GLMesh& m)
 {
-    glDisable(GL_TEXTURE_2D);
-    
-    glBegin(GL_LINES);
-    for (EdgeCIter e = mesh.edges.begin(); e != mesh.edges.end(); e++) {
-        
-        VertexCIter v1 = e->he->vertex;
-        VertexCIter v2 = e->he->flip->vertex;
-        
-        if (faceContainsEdge(v1->index, v2->index)) glColor4f(0.0, 1.0, 0.0, 0.6);
-        else glColor4f(0.0, 0.0, 1.0, 0.6);
-        
-        glVertex3d(v1->uv.x() - 0.75,
-                   v1->uv.y(),
-                   0);
-        glVertex3d(v2->uv.x() - 0.75,
-                   v2->uv.y(),
-                   0);
-            
-        glVertex3d(v1->position.x() + 1.25,
-                   v1->position.y(),
-                   v1->position.z());
-        glVertex3d(v2->position.x() + 1.25,
-                   v2->position.y(),
-                   v2->position.z());
+    if (showCheckerboard) m.draw(checkerboardShader);
+    else m.draw(meshShader);
+    if (showNormals) m.draw(normalShader);
+    if (showWireframe) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glDepthMask(GL_FALSE);
+        m.draw(wireframeShader);
+        glDepthMask(GL_TRUE);
+        glDisable(GL_BLEND);
     }
-    glEnd();
-}
-
-void drawError()
-{
-    glDisable(GL_TEXTURE_2D);
-    
-    glBegin(GL_TRIANGLES);
-    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        
-        if (f->isBoundary()) continue;
-        glColor4f(f->error.x(), f->error.y(), f->error.z(), 0.6);
-        
-        // draw flattened
-        HalfEdgeCIter he = f->he;
-        do {
-            glTexCoord2d(he->vertex->uv.x(), he->vertex->uv.y());
-            glVertex3d(he->vertex->uv.x() - 0.75,
-                       he->vertex->uv.y(),
-                       0);
-            
-            he = he->next;
-        } while (he != f->he);
-        
-        // draw positions
-        do {
-            glTexCoord2d(he->vertex->uv.x(), he->vertex->uv.y());
-            glVertex3d(he->vertex->position.x() + 1.25,
-                       he->vertex->position.y(),
-                       he->vertex->position.z());
-            
-            he = he->next;
-        } while (he != f->he);
-    }
-    glEnd();
 }
 
 void display()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-    double aspect = (double)viewport[2] / (double)viewport[3];
-    gluPerspective(fovy, aspect, clipNear, clipFar);
-    
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    
-    gluLookAt(eyeX, eyeY, eyeZ, x, y, z, upX, upY, upZ);
+    float elapsedTime = glutGet(GLUT_ELAPSED_TIME);
+    dt = (elapsedTime - lastTime) / 1000.0;
+    lastTime = elapsedTime;
     
     if (success) {
-        if (drawMode == TEXTURE) drawTexture();
-        else if (drawMode == WIREFRAME) drawWireframe();
-        else drawError();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        // upload camera transforms
+        uploadCameraTransforms();
+        
+        // set model transformation
+        glBindBuffer(GL_UNIFORM_BUFFER, transformUbo);
+        transform.setIdentity(); transform(0, 3) = -1.0;
+        glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(Eigen::Matrix4f),
+                        sizeof(Eigen::Matrix4f), transform.data());
+        
+        // draw
+        draw(glMesh);
+        
+        transform.setIdentity(); transform(0, 3) = 1.0;
+        glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(Eigen::Matrix4f),
+                        sizeof(Eigen::Matrix4f), transform.data());
+        
+        // draw
+        draw(glParameterMesh);
+        
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        
+        // swap
+        glutSwapBuffers();
     }
-
-    glutSwapBuffers();
 }
 
-void keyboard(unsigned char key, int x0, int y0)
+void idle()
 {
-    switch (key) {
-        case 27 :
-            exit(0);
-        case ' ':
-            if (technique == LSCM) technique = SCP;
-            else technique = LSCM;
-            if (success) mesh.parameterize(technique);
-            break;
-        case 't':
-            drawMode = (drawMode+1)%3;
-            break;
-        case 'a':
-            x -= 0.03;
-            break;
-        case 'd':
-            x += 0.03;
-            break;
-        case 'w':
-            y += 0.03;
-            break;
-        case 's':
-            y -= 0.03;
-            break;
-        case 'r':
-            success = mesh.read(path);
-            if (success) mesh.parameterize(technique);
-            break;
-    }
-    
-    std::string title = "Conformal Parameterization, Mode = ";
-    title += ((technique == LSCM) ? "LSCM" : "SCP");
-    glutSetWindowTitle(title.c_str());
-    
     glutPostRedisplay();
 }
 
-void special(int i, int x0, int y0)
+void reset()
+{
+    glDeleteBuffers(1, &transformUbo);
+    glDeleteBuffers(1, &lightUbo);
+}
+
+void updateScene(const std::string& algorithm)
+{
+    // copy uvs
+    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
+        parameterMesh.vertices[v->index].position = Eigen::Vector3d(v->uv.x(), v->uv.y(), 0);
+        parameterMesh.vertices[v->index].uv = v->uv;
+    }
+    
+    // update errors
+    updateErrors();
+    
+    // update gl meshes
+    glMesh.update(showQcError ? qcErrors : defaultColors);
+    glParameterMesh.update(showQcError ? qcErrors : defaultColors);
+    
+    // update title
+    std::string title = "Conformal Parameterization: " + algorithm;
+    glutSetWindowTitle(title.c_str());
+}
+
+void keyboardPressed(unsigned char key, int x, int y)
+{
+    keys[key] = true;
+    
+    if (keys[ESCAPE]) {
+        reset();
+        exit(0);
+    
+    } else if (keys[DIGIT_OFFSET + 1]) {
+        mesh.parameterize(SCP);
+        updateScene("SCP");
+        
+    } else if (keys[DIGIT_OFFSET + 2]) {
+        mesh.parameterize(LSCM);
+        updateScene("LSCM");
+    
+    } else if (keys[DIGIT_OFFSET + 3]) {
+        mesh.parameterize(CIRCLE_PATTERNS);
+        updateScene("CIRCLE PATTERNS");
+        
+    } else if (keys[DIGIT_OFFSET + 4]) {
+        mesh.parameterize(CETM);
+        updateScene("CETM");
+        
+    } else if (keys[DIGIT_OFFSET + 5]) {
+        showCheckerboard = !showCheckerboard;
+        if (showCheckerboard) showQcError = false;
+        glMesh.update(showQcError ? qcErrors : defaultColors);
+        glParameterMesh.update(showQcError ? qcErrors : defaultColors);
+        
+    } else if (keys[DIGIT_OFFSET + 6]) {
+        showQcError = !showQcError;
+        if (showQcError) showCheckerboard = false;
+        glMesh.update(showQcError ? qcErrors : defaultColors);
+        glParameterMesh.update(showQcError ? qcErrors : defaultColors);
+    
+    } else if (keys[DIGIT_OFFSET + 7]) {
+        showNormals = !showNormals;
+        
+    } else if (keys[DIGIT_OFFSET + 8]) {
+        showWireframe = !showWireframe;
+    
+    } else if (keys['a']) {
+        camera.processKeyboard(LEFT, dt);
+        
+    } else if (keys['d']) {
+        camera.processKeyboard(RIGHT, dt);
+        
+    } else if (keys['w']) {
+        camera.processKeyboard(FORWARD, dt);
+        
+    } else if (keys['s']) {
+        camera.processKeyboard(BACKWARD, dt);
+        
+    } else if (keys['e']) {
+        camera.processKeyboard(UP, dt);
+        
+    } else if (keys['q']) {
+        camera.processKeyboard(DOWN, dt);
+    }
+}
+
+void keyboardReleased(unsigned char key, int x, int y)
+{
+    if (key != ESCAPE) keys[key] = false;
+}
+
+void special(int i, int x, int y)
 {
     switch (i) {
-        case GLUT_KEY_UP:
-            z -= 0.03;
-            break;
-        case GLUT_KEY_DOWN:
-            z += 0.03;
-            break;
         case GLUT_KEY_LEFT:
-            if (drawMode == WIREFRAME) {
-                currTri --;
-                if (currTri < 0) currTri = (int)mesh.faces.size()-1;
-            }
+            // TODO
             break;
         case GLUT_KEY_RIGHT:
-            if (drawMode == WIREFRAME) {
-                currTri ++;
-                if (currTri == (int)mesh.faces.size()) currTri = 0;
-            }
+            // TODO
             break;
     }
-    
-    glutPostRedisplay();
 }
 
 void mouse(int x, int y)
 {
-    // mouse point to angle conversion
-    theta = (360.0 / gridY)*y*3.0;    // 3.0 rotations possible
-   	phi = (360.0 / gridX)*x*3.0;
+    if (firstMouse) {
+        lastX = x;
+        lastY = y;
+        firstMouse = false;
+    }
     
-    // restrict the angles within 0~360 deg (optional)
-   	if (theta > 360) theta = fmod((double)theta, 360.0);
-   	if (phi > 360) phi = fmod((double)phi, 360.0);
+    float dx = x - lastX;
+    float dy = lastY - y;
     
-    // spherical to Cartesian conversion.
-    // degrees to radians conversion factor 0.0174532
-    eyeX = r * sin(theta*0.0174532) * sin(phi*0.0174532);
-    eyeY = r * cos(theta*0.0174532);
-   	eyeZ = r * sin(theta*0.0174532) * cos(phi*0.0174532);
+    lastX = x;
+    lastY = y;
     
-    // reduce theta slightly to obtain another point on the same longitude line on the sphere.
-    GLfloat dt = 1.0;
-   	GLfloat eyeXtemp = r * sin(theta*0.0174532-dt) * sin(phi*0.0174532);
-   	GLfloat eyeYtemp = r * cos(theta*0.0174532-dt);
-   	GLfloat eyeZtemp = r * sin(theta*0.0174532-dt) * cos(phi*0.0174532);
-    
-    // connect these two points to obtain the camera's up vector.
-   	upX = eyeXtemp - eyeX;
-   	upY = eyeYtemp - eyeY;
-   	upZ = eyeZtemp - eyeZ;
-    
-   	glutPostRedisplay();
+    camera.processMouse(dx, dy);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
+    // TODOs:
+    // 1) Correspondence
+    // 2) Linking
+    // 3) Circle Patterns
+    // 4) Cetm
+    // 5) LBFGS
+    // 6) Subdivision
     
-    success = mesh.read(path);
-    if (success) mesh.parameterize(technique);
-    
-    printInstructions();
-    glutInitWindowSize(gridX, gridY);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutInit(&argc, argv);
-    glutCreateWindow("Conformal Parameterization, Mode = LSCM");
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE | GLUT_MULTISAMPLE);
+    glutInitWindowSize(gridX, gridY);
+    glutCreateWindow("Conformal Parameterization: SCP");
+    
     init();
+    mesh.parameterize(SCP);
+    updateScene("SCP");
+    
     glutDisplayFunc(display);
-    glutKeyboardFunc(keyboard);
+    glutIdleFunc(idle);
+    glutKeyboardFunc(keyboardPressed);
+    glutKeyboardUpFunc(keyboardReleased);
     glutSpecialFunc(special);
     glutMotionFunc(mouse);
     glutMainLoop();

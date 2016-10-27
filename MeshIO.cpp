@@ -85,8 +85,6 @@ void MeshIO::preallocateMeshElements(const MeshData& data, Mesh& mesh)
     
     mesh.halfEdges.clear();
     mesh.vertices.clear();
-    mesh.uvs.clear();
-    mesh.normals.clear();
     mesh.edges.clear();
     mesh.faces.clear();
     mesh.boundaries.clear();
@@ -102,13 +100,25 @@ void MeshIO::indexElements(Mesh& mesh)
     int index = 0;
     for (VertexIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
         v->index = index;
-        index ++;
+        index++;
+    }
+    
+    index = 0;
+    for (EdgeIter e = mesh.edges.begin(); e != mesh.edges.end(); e++) {
+        e->index = index;
+        index++;
+    }
+    
+    index = 0;
+    for (HalfEdgeIter h = mesh.halfEdges.begin(); h != mesh.halfEdges.end(); h++) {
+        h->index = index;
+        index++;
     }
     
     index = 0;
     for (FaceIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
         f->index = index;
-        index ++;
+        index++;
     }
 }
 
@@ -170,18 +180,6 @@ bool MeshIO::buildMesh(const MeshData& data, Mesh& mesh)
         vertex->he = isolated.begin();
         indexToVertex[i] = vertex;
     }
-    
-    // insert uvs into mesh
-    for (unsigned int i = 0; i < data.uvs.size(); i++) {
-        VectorIter uv = mesh.uvs.insert(mesh.uvs.end(), Eigen::Vector3d());
-        *uv = data.uvs[i];
-    }
-    
-    // insert normals into mesh
-    for (unsigned int i = 0; i < data.normals.size(); i++) {
-        VectorIter normal = mesh.normals.insert(mesh.normals.end(), Eigen::Vector3d());
-        *normal = data.normals[i];
-    }
    
     // insert faces into mesh
     int faceIndex = 0;
@@ -216,14 +214,6 @@ bool MeshIO::buildMesh(const MeshData& data, Mesh& mesh)
             // set halfedge attributes
             halfEdges[i]->next = halfEdges[(i+1)%n];
             halfEdges[i]->vertex = indexToVertex[a];
-            
-            int uv = (*f)[i].uv;
-            if (uv >= 0) halfEdges[i]->uv = data.uvs[uv];
-            else halfEdges[i]->uv.setZero();
-            
-            int normal = (*f)[i].normal;
-            if (normal >= 0) halfEdges[i]->normal = data.normals[normal];
-            else halfEdges[i]->normal.setZero();
             
             halfEdges[i]->onBoundary = false;
             
@@ -302,7 +292,6 @@ bool MeshIO::buildMesh(const MeshData& data, Mesh& mesh)
                 newHe->vertex = nextHe->vertex;
                 newHe->edge = he->edge;
                 newHe->face = newFace;
-                newHe->uv = nextHe->uv;
                 
                 // set face's halfedge to boundary halfedge
                 newFace->he = newHe;
@@ -385,39 +374,33 @@ bool MeshIO::read(std::ifstream& in, Mesh& mesh)
 
 void MeshIO::write(std::ofstream& out, const Mesh& mesh)
 {
-    std::unordered_map<std::string, int> vertexMap;
-    std::unordered_map<std::string, int> uvMap;
-    std::unordered_map<std::string, int> normalMap;
-    
-    // write vertices
+    // write vertices and uvs
     int index = 1;
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
         out << "v " << v->position.x() << " "
                     << v->position.y() << " "
                     << v->position.z() << std::endl;
         
-        vertexMap[stringRep(v->position)] = index;
         index++;
     }
     
     // write uvs
     index = 1;
-    for (VectorCIter uv = mesh.uvs.begin(); uv != mesh.uvs.end(); uv++) {
-        out << "vt " << uv->x() << " "
-                     << uv->y() << std::endl;
+    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
+        out << "vt " << v->uv.x() << " "
+                     << v->uv.y() << std::endl;
         
-        uvMap[stringRep(*uv)] = index;
         index++;
     }
     
     // write normals
     index = 1;
-    for (VectorCIter n = mesh.uvs.begin(); n != mesh.normals.end(); n++) {
-        out << "vn " << n->x() << " "
-                     << n->y() << " "
-                     << n->z() << std::endl;
+    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
+        Eigen::Vector3d n = v->normal();
+        out << "vn " << n.x() << " "
+                     << n.y() << " "
+                     << n.z() << std::endl;
         
-        normalMap[stringRep(*n)] = index;
         index++;
     }
     
@@ -433,9 +416,9 @@ void MeshIO::write(std::ofstream& out, const Mesh& mesh)
         out << "f ";
         int j = 0;
         do {
-            out << vertexMap[stringRep(he->vertex->position)] << "/"
-                << uvMap[stringRep(he->uv)] << "/"
-                << normalMap[stringRep(he->normal)] << " ";
+            out << he->vertex->index << "/"
+                << he->vertex->index << "/"
+                << he->vertex->index << " ";
             j++;
             
             he = he->next;

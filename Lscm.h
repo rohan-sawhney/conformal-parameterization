@@ -1,19 +1,19 @@
 #ifndef LSCM_H
 #define LSCM_H
 
-#include "Parameterizer.h"
+#include "Parameterization.h"
 
-class Lscm : public Parameterizer {
+class Lscm : public Parameterization {
 public:
     // constructor
     Lscm(Mesh& mesh0);
     
     // parameterize
-    void parameterize();
+    void parameterize() override;
     
 private:
-    // finds diameter vertices
-    void findDiameterVertices();
+    // pin vertices
+    void pinVertices();
     
     // checks if vertex is pinned
     bool isPinnedVertex(const int& vIndex, int& shift, Eigen::Vector2d& pinnedPosition) const;

@@ -11,8 +11,8 @@ public:
     // id between 0 and |F|-1
     int index;
     
-    // error
-    Eigen::Vector3d error;
+    // quasi conformal error
+    Eigen::Vector3d qcError;
     
     // checks if this face lies on boundary
     bool isBoundary() const;
@@ -22,9 +22,6 @@ public:
     
     // returns face area
     double area() const;
-    
-    // returns uv area
-    double uvArea() const;
 };
 
 #endif

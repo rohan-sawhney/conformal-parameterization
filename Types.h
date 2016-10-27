@@ -9,16 +9,18 @@
 #include "math.h"
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include <Eigen/SparseCore>
 #define EPSILON 1e-8
-#define LSCM 0
-#define SCP 1
+#define SCP 0
+#define LSCM 1
+#define CIRCLE_PATTERNS 2
+#define CETM 3
 
 class Vertex;
 class Edge;
 class Face;
 class HalfEdge;
 class Mesh;
-class MeshIO;
 
 typedef std::vector<HalfEdge>::iterator HalfEdgeIter;
 typedef std::vector<HalfEdge>::const_iterator HalfEdgeCIter;

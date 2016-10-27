@@ -45,34 +45,15 @@ bool Mesh::write(const std::string& fileName) const
     return false;
 }
 
-void Mesh::setQcError()
+void Mesh::parameterize(int mode)
 {
-    for (FaceIter f = faces.begin(); f != faces.end(); f++) {
-        std::vector<Eigen::Vector3d> p, q;
-        HalfEdgeCIter he = f->he;
-        do {
-            p.push_back(he->vertex->position);
-            q.push_back(Eigen::Vector3d(he->vertex->uv.x(), he->vertex->uv.y(), 0));
-            
-            he = he->next;
-        } while (he != f->he);
-        
-        f->error = QuasiConformalError::color(QuasiConformalError::compute(p, q));
-    }
-}
-
-void Mesh::parameterize(const int& technique)
-{
-    if (technique == SCP) {
-        Scp scp(*this);
-        scp.parameterize();
+    Parameterization *param;
+    if (mode == SCP) param = new Scp(*this);
+    else if (mode == LSCM) param = new Lscm(*this);
     
-    } else {
-        Lscm lscm(*this);
-        lscm.parameterize();
-    }
-    
-    setQcError();
+    param->parameterize();
+    param->computeQcError();
+    delete param;
 }
 
 void Mesh::normalize()

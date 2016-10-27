@@ -2,21 +2,21 @@
 
 double QuasiConformalError::compute(std::vector<Eigen::Vector3d> p, std::vector<Eigen::Vector3d> q)
 {
-    // Compute edge vectors
+    // compute edge vectors
     Eigen::Vector3d u1 = p[1] - p[0];
     Eigen::Vector3d u2 = p[2] - p[0];
     
     Eigen::Vector3d v1 = q[1] - q[0];
     Eigen::Vector3d v2 = q[2] - q[0];
     
-    // Compute orthonormal bases
+    // compute orthonormal bases
     Eigen::Vector3d e1 = u1; e1.normalize();
     Eigen::Vector3d e2 = (u2 - u2.dot(e1)*e1); e2.normalize();
     
     Eigen::Vector3d f1 = v1; f1.normalize();
     Eigen::Vector3d f2 = (v2 - v2.dot(f1)*f1); f2.normalize();
     
-    // Project onto bases
+    // project onto bases
     p[0] = Eigen::Vector3d::Zero();
     p[1] = Eigen::Vector3d(u1.dot(e1), u1.dot(e2), 0);
     p[2] = Eigen::Vector3d(u2.dot(e1), u2.dot(e2), 0);
@@ -112,9 +112,9 @@ Eigen::Vector3d QuasiConformalError::hsv(double h, double s, double v)
 
 Eigen::Vector3d QuasiConformalError::color(double qc)
 {
-    // Clamp to range [1, 1.5]
+    // clamp to range [1, 1.5]
     qc = std::max(1.0, std::min(1.5, qc));
     
-    // Compute color
+    // compute color
     return hsv((2.0 - 4.0*(qc-1.0))/3.0, 0.7, 0.65);
 }

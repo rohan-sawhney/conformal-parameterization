@@ -22,21 +22,16 @@ public:
     bool write(const std::string& fileName) const;
     
     // computes conformal parameterization
-    void parameterize(const int& technique);
+    void parameterize(int mode);
         
     // member variables
     std::vector<HalfEdge> halfEdges;
     std::vector<Vertex> vertices;
-    std::vector<Eigen::Vector3d> uvs;
-    std::vector<Eigen::Vector3d> normals;
     std::vector<Edge> edges;
     std::vector<Face> faces;
     std::vector<HalfEdgeIter> boundaries;
 
 private:
-    // set quasi conformal error
-    void setQcError();
-    
     // center mesh about origin and rescale to unit radius
     void normalize();
 };
