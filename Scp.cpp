@@ -29,8 +29,7 @@ void Scp::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) con
             he = he->flip->next;
         } while (he != v->he);
         
-        ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index, v->index,
-                                                                 sumCoefficients + EPSILON));
+        ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index, v->index, sumCoefficients + EPSILON));
     }
     
     // subtract area term from dirichlet energy
@@ -75,6 +74,8 @@ void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A,
         x = solver.solve(x);
         
         // center
+        std::complex<double> mean = x.sum() / (double)x.size();
+        for (int i = 0; i < x.size(); i++) x(i) -= mean;
         
         // normalize
         x.normalize();

@@ -11,6 +11,9 @@ public:
     // id between 0 and |E|-1
     int index;
     
+    // checks if this edge lies on boundary
+    bool isBoundary() const;
+    
     double length() const;
 };
 

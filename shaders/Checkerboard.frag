@@ -28,6 +28,6 @@ void main()
     float fresnel = pow(sqrt(1.0 - nv*nv), 10);
     float check = 0.5 + 0.5*mod(floor(texCoords.x*8.0)+floor(texCoords.y*8.0), 2.0);
     
-    fragColor.rgb = (0.25 + 0.9*diffuse)*color*check + 0.2*specular*ONE + 0.75*fresnel*BACKGROUND;
+    fragColor.rgb = (0.5 + 0.9*diffuse)*color*check + 0.2*specular*ONE + 0.75*fresnel*BACKGROUND;
     fragColor.a = 1.0;
 }

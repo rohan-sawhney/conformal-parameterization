@@ -9,3 +9,8 @@ double Edge::length() const
     
     return (b-a).norm();
 }
+
+bool Edge::isBoundary() const
+{
+    return he->onBoundary || he->flip->onBoundary;
+}

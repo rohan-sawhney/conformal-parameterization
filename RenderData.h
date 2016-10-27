@@ -12,6 +12,11 @@ struct GLVertex {
     Eigen::Vector2f uv;
 };
 
+struct GLPickVertex {
+    Eigen::Vector3f position;
+    Eigen::Vector3f color;
+};
+
 class GLMesh {
 public:
     // constructor
@@ -29,17 +34,24 @@ public:
     // draw
     void draw(Shader& shader) const;
     
+    // draw
+    void drawPick(Shader& shader) const;
+    
     // member variables
     std::vector<GLVertex> vertices;
+    std::vector<GLPickVertex> pickVertices;
     Mesh& mesh;
 
 private:
-    // fills gl buffers
+    // fills buffers
     void fillBuffers(const std::vector<Eigen::Vector3f>& colors);
     
+    // fills pick buffers
+    void fillPickBuffers();
+    
     // member variables
-    GLuint vao;
-    GLuint vbo;
+    GLuint vao, pickVao;
+    GLuint vbo, pickVbo;
 };
 
 #endif

@@ -27,6 +27,6 @@ void main()
     float nv = max(dot(normal, viewDirection), 0.0);
     float fresnel = pow(sqrt(1.0 - nv*nv), 10);
     
-    fragColor.rgb = (0.2 + 0.9*diffuse)*color + 0.2*specular*ONE + 0.75*fresnel*BACKGROUND;
+    fragColor.rgb = (0.25 + 0.9*diffuse)*color + 0.2*specular*ONE + 0.75*fresnel*BACKGROUND;
     fragColor.a = 1.0;
 }

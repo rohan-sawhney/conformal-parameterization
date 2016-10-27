@@ -20,6 +20,12 @@ public:
     // checks if vertex is contained in any edge or face
     bool isIsolated() const;
     
+    // checks if this vertex lies on boundary
+    bool isBoundary() const;
+    
+    // returns degree
+    int degree() const;
+    
     // returns angle weighted vertex normal
     Eigen::Vector3d normal() const;
 };

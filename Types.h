@@ -30,7 +30,5 @@ typedef std::vector<Edge>::iterator EdgeIter;
 typedef std::vector<Edge>::const_iterator EdgeCIter;
 typedef std::vector<Face>::iterator FaceIter;
 typedef std::vector<Face>::const_iterator FaceCIter;
-typedef std::vector<Eigen::Vector3d>::iterator VectorIter;
-typedef std::vector<Eigen::Vector3d>::const_iterator VectorCIter;
 
 #endif

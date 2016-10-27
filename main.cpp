@@ -4,6 +4,7 @@
 
 #define ESCAPE 27
 #define DIGIT_OFFSET 48
+#define MAX_PICKED_ID 16777215
 
 int gridX = 600;
 int gridY = 600;
@@ -11,23 +12,24 @@ int gridY = 600;
 GLuint transformUbo;
 GLuint lightUbo;
 
-const std::string path = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/bunnyhead.obj";
+const std::string path = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/cathead.obj";
 const std::string shaderPath = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/shaders/";
 Shader meshShader(shaderPath);
 Shader normalShader(shaderPath);
 Shader wireframeShader(shaderPath);
+Shader pickShader(shaderPath);
 Shader checkerboardShader(shaderPath);
 
 Camera camera;
 float lastTime = 0.0;
 float dt = 0.0;
 float lastX = 0.0, lastY = 0.0;
+float pressX = 0.0, pressY = 0.0;
 bool keys[256];
 bool firstMouse = true;
 
 Mesh mesh, parameterMesh;
 GLMesh glMesh(mesh), glParameterMesh(parameterMesh);
-Eigen::Matrix4f transform;
 
 std::vector<Eigen::Vector3f> defaultColors;
 std::vector<Eigen::Vector3f> qcErrors;
@@ -38,14 +40,16 @@ const Eigen::Vector3f lightColor(1.0, 1.0, 1.0);
 bool success = true;
 bool showCheckerboard = false;
 bool showQcError = false;
-bool showWireframe = false;
 bool showNormals = false;
+bool showWireframe = false;
+bool pickingEnabled = false;
 
 void setupShaders()
 {
     meshShader.setup("Model.vert", "", "Model.frag");
     normalShader.setup("Normal.vert", "Normal.geom", "Normal.frag");
     wireframeShader.setup("Wireframe.vert", "", "Wireframe.frag");
+    pickShader.setup("Flat.vert", "", "Flat.frag");
     checkerboardShader.setup("Model.vert", "", "Checkerboard.frag");
 }
 
@@ -55,12 +59,14 @@ void setupUniformBlocks()
     GLuint meshShaderIndex = glGetUniformBlockIndex(meshShader.program, "Transform");
     GLuint normalShaderIndex = glGetUniformBlockIndex(normalShader.program, "Transform");
     GLuint wireframeShaderIndex = glGetUniformBlockIndex(wireframeShader.program, "Transform");
+    GLuint pickShaderIndex = glGetUniformBlockIndex(pickShader.program, "Transform");
     GLuint checkerboardShaderIndex = glGetUniformBlockIndex(checkerboardShader.program, "Transform");
     
     // bind
     glUniformBlockBinding(meshShader.program, meshShaderIndex, 0);
     glUniformBlockBinding(normalShader.program, normalShaderIndex, 0);
     glUniformBlockBinding(wireframeShader.program, wireframeShaderIndex, 0);
+    glUniformBlockBinding(pickShader.program, pickShaderIndex, 0);
     glUniformBlockBinding(checkerboardShader.program, checkerboardShaderIndex, 0);
     
     // add transform data
@@ -100,7 +106,6 @@ void printInstructions()
               << "w/s: move in/out\n"
               << "a/d: move left/right\n"
               << "e/q: move up/down\n"
-              << "→/←: update face correspondence\n"
               << "escape: exit program\n"
               << std::endl;
 }
@@ -128,10 +133,6 @@ void init()
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
-    
-    glClearColor(0.1, 0.1, 0.1, 1.0);
-    glClearDepth(1.0);
-    glDepthFunc(GL_LEQUAL);
     
     // setup shaders and blocks
     setupShaders();
@@ -165,6 +166,59 @@ void uploadCameraTransforms()
                 camera.pos.x(), camera.pos.y(), camera.pos.z());
 }
 
+void uploadModelTransform(const Eigen::Matrix4f& transform)
+{
+    // set transform
+    glBindBuffer(GL_UNIFORM_BUFFER, transformUbo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(Eigen::Matrix4f), sizeof(Eigen::Matrix4f), transform.data());
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+void processPickedElement(int id)
+{
+    int f = (int)mesh.faces.size()-1;
+    int fv = f + (int)mesh.vertices.size();
+    if (id < f) {
+        // Do something with the picked face
+
+    } else if (id < fv) {
+        // Do something with the picked vertex
+    }
+}
+
+void pick()
+{
+    if (pickingEnabled) {
+        // clear
+        glClearColor(1.0, 1.0, 1.0, 1.0);
+        glClearDepth(1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDepthFunc(GL_LESS);
+        
+        // draw pick
+        Eigen::Matrix4f transform = Eigen::Matrix4f::Identity(); transform(0, 3) = -1.0;
+        uploadModelTransform(transform);
+        glMesh.drawPick(pickShader);
+        
+        transform(0, 3) = 1.0;
+        uploadModelTransform(transform);
+        glParameterMesh.drawPick(pickShader);
+        
+        glFlush();
+        glFinish();
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        
+        unsigned char data[4];
+        glReadPixels(pressX, gridY - pressY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        
+        // Convert color to ID
+        int pickedId = data[0] + data[1]*256 + data[2]*256*256;
+        if (pickedId != MAX_PICKED_ID) processPickedElement(pickedId);
+        
+        pickingEnabled = false;
+    }
+}
+
 void draw(GLMesh& m)
 {
     if (showCheckerboard) m.draw(checkerboardShader);
@@ -187,29 +241,26 @@ void display()
     lastTime = elapsedTime;
     
     if (success) {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
         // upload camera transforms
         uploadCameraTransforms();
         
-        // set model transformation
-        glBindBuffer(GL_UNIFORM_BUFFER, transformUbo);
-        transform.setIdentity(); transform(0, 3) = -1.0;
-        glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(Eigen::Matrix4f),
-                        sizeof(Eigen::Matrix4f), transform.data());
+        // pick
+        pick();
+        
+        // clear
+        glClearColor(0.1, 0.1, 0.1, 1.0);
+        glClearDepth(1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDepthFunc(GL_LEQUAL);
         
         // draw
+        Eigen::Matrix4f transform = Eigen::Matrix4f::Identity(); transform(0, 3) = -1.0;
+        uploadModelTransform(transform);
         draw(glMesh);
         
-        transform.setIdentity(); transform(0, 3) = 1.0;
-        glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(Eigen::Matrix4f),
-                        sizeof(Eigen::Matrix4f), transform.data());
-        
-        // draw
+        transform(0, 3) = 1.0;
+        uploadModelTransform(transform);
         draw(glParameterMesh);
-        
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
         
         // swap
         glutSwapBuffers();
@@ -314,15 +365,12 @@ void keyboardReleased(unsigned char key, int x, int y)
     if (key != ESCAPE) keys[key] = false;
 }
 
-void special(int i, int x, int y)
+void mousePressed(int button, int state, int x, int y)
 {
-    switch (i) {
-        case GLUT_KEY_LEFT:
-            // TODO
-            break;
-        case GLUT_KEY_RIGHT:
-            // TODO
-            break;
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+        pickingEnabled = true;
+        pressX = x;
+        pressY = y;
     }
 }
 
@@ -346,12 +394,11 @@ void mouse(int x, int y)
 int main(int argc, char** argv)
 {
     // TODOs:
-    // 1) Correspondence
-    // 2) Linking
-    // 3) Circle Patterns
-    // 4) Cetm
-    // 5) LBFGS
-    // 6) Subdivision
+    // 1) Linking
+    // 2) Circle Patterns
+    // 3) Cetm
+    // 4) LBFGS
+    // 5) Subdivision
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE | GLUT_MULTISAMPLE);
@@ -366,7 +413,7 @@ int main(int argc, char** argv)
     glutIdleFunc(idle);
     glutKeyboardFunc(keyboardPressed);
     glutKeyboardUpFunc(keyboardReleased);
-    glutSpecialFunc(special);
+    glutMouseFunc(mousePressed);
     glutMotionFunc(mouse);
     glutMainLoop();
     
