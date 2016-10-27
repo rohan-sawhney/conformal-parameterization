@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0640"
+   LastUpgradeVersion = "0800"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3259ADB81BA49DE70014C457"
+               BlueprintIdentifier = "32B47DEB1DC2A6EE00BC7642"
                BuildableName = "conformal-parameterization"
                BlueprintName = "conformal-parameterization"
                ReferencedContainer = "container:conformal-parameterization.xcodeproj">
@@ -23,55 +23,64 @@
       </BuildActionEntries>
    </BuildAction>
    <TestAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Debug">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3259ADB81BA49DE70014C457"
+            BlueprintIdentifier = "32B47DEB1DC2A6EE00BC7642"
             BuildableName = "conformal-parameterization"
             BlueprintName = "conformal-parameterization"
             ReferencedContainer = "container:conformal-parameterization.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3259ADB81BA49DE70014C457"
+            BlueprintIdentifier = "32B47DEB1DC2A6EE00BC7642"
             BuildableName = "conformal-parameterization"
             BlueprintName = "conformal-parameterization"
             ReferencedContainer = "container:conformal-parameterization.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/bunnyhead.obj /Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/shaders"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
+      buildConfiguration = "Release"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "3259ADB81BA49DE70014C457"
+            BlueprintIdentifier = "32B47DEB1DC2A6EE00BC7642"
             BuildableName = "conformal-parameterization"
             BlueprintName = "conformal-parameterization"
             ReferencedContainer = "container:conformal-parameterization.xcodeproj">

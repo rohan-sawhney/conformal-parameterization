@@ -4,12 +4,12 @@
 
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
-    "2C8918DF59CEDE34AF66B3DB466BAE2A13E667C6" : 0,
-    "93012211585513E702385219484BD8E8D4D7E84E" : 0
+    "2C8918DF59CEDE34AF66B3DB466BAE2A13E667C6" : 9223372036854775807,
+    "93012211585513E702385219484BD8E8D4D7E84E" : 9223372036854775807
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "205352CC-D3D0-45CA-A0A0-7F6E48873904",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "2C8918DF59CEDE34AF66B3DB466BAE2A13E667C6" : "conformal-parameterization",
+    "2C8918DF59CEDE34AF66B3DB466BAE2A13E667C6" : "conformal-parameterization\/",
     "93012211585513E702385219484BD8E8D4D7E84E" : ""
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "conformal-parameterization",

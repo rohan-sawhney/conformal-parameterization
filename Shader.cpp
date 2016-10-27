@@ -2,8 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-Shader::Shader(const std::string& dir0):
-dir(dir0)
+Shader::Shader()
 {
     
 }
@@ -26,7 +25,7 @@ bool Shader::readShaderCode(const std::string& file, std::string& code)
 {
     std::ifstream in;
     std::string path;
-    if (!file.empty()) path = dir + file;
+    if (!file.empty()) path = dir + "/" + file;
     
     in.open(path.c_str());
     if (in.is_open()) {
@@ -66,11 +65,13 @@ GLuint Shader::compileShader(const std::string& file, GLenum type)
     return shader;
 }
 
-void Shader::setup(const std::string& vertexFile,
+void Shader::setup(const std::string& dir0,
+                   const std::string& vertexFile,
                    const std::string& geometryFile,
                    const std::string& fragmentFile)
 {
     // compile shaders
+    dir = dir0;
     vertex = compileShader(vertexFile, GL_VERTEX_SHADER);
     geometry = compileShader(geometryFile, GL_GEOMETRY_SHADER);
     fragment = compileShader(fragmentFile, GL_FRAGMENT_SHADER);

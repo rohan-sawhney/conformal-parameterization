@@ -17,13 +17,14 @@
 class Shader {
 public:
     // constructor
-    Shader(const std::string& dir0);
+    Shader();
     
     // destructor
     ~Shader();
     
     // set up
-    void setup(const std::string& vertexFile,
+    void setup(const std::string& dir0,
+               const std::string& vertexFile,
                const std::string& geometryFile,
                const std::string& fragmentFile);
     

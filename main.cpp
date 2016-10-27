@@ -12,13 +12,13 @@ int gridY = 600;
 GLuint transformUbo;
 GLuint lightUbo;
 
-const std::string path = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/cathead.obj";
-const std::string shaderPath = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/shaders/";
-Shader meshShader(shaderPath);
-Shader normalShader(shaderPath);
-Shader wireframeShader(shaderPath);
-Shader pickShader(shaderPath);
-Shader checkerboardShader(shaderPath);
+std::string path;
+std::string shaderPath;
+Shader meshShader;
+Shader normalShader;
+Shader wireframeShader;
+Shader pickShader;
+Shader checkerboardShader;
 
 Camera camera;
 float lastTime = 0.0;
@@ -46,11 +46,11 @@ bool pickingEnabled = false;
 
 void setupShaders()
 {
-    meshShader.setup("Model.vert", "", "Model.frag");
-    normalShader.setup("Normal.vert", "Normal.geom", "Normal.frag");
-    wireframeShader.setup("Wireframe.vert", "", "Wireframe.frag");
-    pickShader.setup("Flat.vert", "", "Flat.frag");
-    checkerboardShader.setup("Model.vert", "", "Checkerboard.frag");
+    meshShader.setup(shaderPath, "Model.vert", "", "Model.frag");
+    normalShader.setup(shaderPath, "Normal.vert", "Normal.geom", "Normal.frag");
+    wireframeShader.setup(shaderPath, "Wireframe.vert", "", "Wireframe.frag");
+    pickShader.setup(shaderPath, "Flat.vert", "", "Flat.frag");
+    checkerboardShader.setup(shaderPath, "Model.vert", "", "Checkerboard.frag");
 }
 
 void setupUniformBlocks()
@@ -394,11 +394,17 @@ void mouse(int x, int y)
 int main(int argc, char** argv)
 {
     // TODOs:
-    // 1) Linking
-    // 2) Circle Patterns
-    // 3) Cetm
-    // 4) LBFGS
-    // 5) Subdivision
+    // 1) Circle Patterns
+    // 2) Cetm
+    // 3) LBFGS
+    // 4) Subdivision
+    
+    if (argc > 3) {
+        std::cout << "Usage: " << argv[0] << " OBJ_PATH SHADER_PATH" << std::endl;
+    }
+    
+    path = argv[1];
+    shaderPath = argv[2];
     
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE | GLUT_MULTISAMPLE);

@@ -2,7 +2,6 @@
 #include "MeshIO.h"
 #include "Scp.h"
 #include "Lscm.h"
-#include "QcError.h"
 
 Mesh::Mesh()
 {
