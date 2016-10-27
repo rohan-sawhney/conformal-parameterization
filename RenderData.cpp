@@ -8,15 +8,9 @@ vbo(0)
     
 }
 
-GLMesh::~GLMesh()
-{
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-}
-
 void GLMesh::fillBuffers(const std::vector<Eigen::Vector3f>& colors)
 {
-    vertices.resize(3*(mesh.faces.size()-1));
+    vertices.resize(3*(mesh.faces.size() - mesh.boundaries.size()));
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
         if (!f->isBoundary()) {
             int i = 0;
@@ -53,7 +47,7 @@ Eigen::Vector3f elementColor(unsigned int idx)
 
 void GLMesh::fillPickBuffers()
 {
-    int tris = (int)mesh.faces.size()-1;
+    int tris = (int)(mesh.faces.size() - mesh.boundaries.size());
     
     // add faces
     int i = 0;
@@ -114,12 +108,12 @@ void GLMesh::setup(const std::vector<Eigen::Vector3f>& colors)
     // bind vao
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
-
+    
     // bind vbo
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, (GLsizei)vertices.size() * sizeof(GLVertex), &vertices[0], GL_STATIC_DRAW);
-
+    
     // set vertex attribute pointers for vbo data
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLVertex), (GLvoid*)0);
@@ -173,7 +167,7 @@ void GLMesh::update(const std::vector<Eigen::Vector3f>& colors)
 
 void GLMesh::draw(Shader& shader) const
 {
-    shader.use();    
+    shader.use();
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size());
     glBindVertexArray(0);
@@ -185,4 +179,10 @@ void GLMesh::drawPick(Shader& shader) const
     glBindVertexArray(pickVao);
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)pickVertices.size());
     glBindVertexArray(0);
+}
+
+void GLMesh::reset()
+{
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
 }

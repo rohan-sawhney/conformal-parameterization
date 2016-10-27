@@ -22,9 +22,6 @@ public:
     // constructor
     GLMesh(Mesh& mesh0);
     
-    // destructor
-    ~GLMesh();
-    
     // setup
     void setup(const std::vector<Eigen::Vector3f>& colors);
     
@@ -37,11 +34,14 @@ public:
     // draw
     void drawPick(Shader& shader) const;
     
+    // reset
+    void reset();
+    
     // member variables
     std::vector<GLVertex> vertices;
     std::vector<GLPickVertex> pickVertices;
     Mesh& mesh;
-
+    
 private:
     // fills buffers
     void fillBuffers(const std::vector<Eigen::Vector3f>& colors);

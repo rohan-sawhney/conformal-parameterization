@@ -19,9 +19,6 @@ public:
     // constructor
     Shader();
     
-    // destructor
-    ~Shader();
-    
     // set up
     void setup(const std::string& dir0,
                const std::string& vertexFile,
@@ -30,6 +27,9 @@ public:
     
     // use
     void use();
+    
+    // reset
+    void reset();
     
     // member variable
     GLuint program;

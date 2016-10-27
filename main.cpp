@@ -139,7 +139,7 @@ void init()
     setupUniformBlocks();
     
     // read mesh
-    success = mesh.read(path) && parameterMesh.read(path);;
+    success = mesh.read(path) && parameterMesh.read(path);
     if (success) {
         setDefaultColors();
         glMesh.setup(defaultColors);
@@ -274,6 +274,13 @@ void idle()
 
 void reset()
 {
+    glMesh.reset();
+    glParameterMesh.reset();
+    meshShader.reset();
+    normalShader.reset();
+    wireframeShader.reset();
+    pickShader.reset();
+    checkerboardShader.reset();
     glDeleteBuffers(1, &transformUbo);
     glDeleteBuffers(1, &lightUbo);
 }
@@ -399,7 +406,7 @@ int main(int argc, char** argv)
     // 3) LBFGS
     // 4) Subdivision
     
-    if (argc > 3) {
+    if (argc != 3) {
         std::cout << "Usage: " << argv[0] << " OBJ_PATH SHADER_PATH" << std::endl;
     }
     

@@ -7,20 +7,6 @@ Shader::Shader()
     
 }
 
-Shader::~Shader()
-{
-    glDetachShader(program, vertex);
-    glDeleteShader(vertex);
-    
-    glDetachShader(program, geometry);
-    glDeleteShader(geometry);
-    
-    glDetachShader(program, fragment);
-    glDeleteShader(fragment);
-    
-    glDeleteProgram(program);
-}
-
 bool Shader::readShaderCode(const std::string& file, std::string& code)
 {
     std::ifstream in;
@@ -75,7 +61,7 @@ void Shader::setup(const std::string& dir0,
     vertex = compileShader(vertexFile, GL_VERTEX_SHADER);
     geometry = compileShader(geometryFile, GL_GEOMETRY_SHADER);
     fragment = compileShader(fragmentFile, GL_FRAGMENT_SHADER);
-
+    
     // create program and attach shaders
     program = glCreateProgram();
     if (vertex) glAttachShader(program, vertex);
@@ -96,4 +82,18 @@ void Shader::setup(const std::string& dir0,
 void Shader::use()
 {
     glUseProgram(program);
+}
+
+void Shader::reset()
+{
+    glDetachShader(program, vertex);
+    glDeleteShader(vertex);
+    
+    glDetachShader(program, geometry);
+    glDeleteShader(geometry);
+    
+    glDetachShader(program, fragment);
+    glDeleteShader(fragment);
+    
+    glDeleteProgram(program);
 }
