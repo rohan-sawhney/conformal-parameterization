@@ -1,6 +1,7 @@
 #include "Scp.h"
-#include <Eigen/SparseCholesky>
+#include <eigen/SparseCholesky>
 #define MAX_ITER 32
+#define EPSILON 1e-8
 
 Scp::Scp(Mesh& mesh0):
 Parameterization(mesh0)

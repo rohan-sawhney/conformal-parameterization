@@ -326,8 +326,9 @@ void keyboardPressed(unsigned char key, int x, int y)
         updateScene("CIRCLE PATTERNS");
         
     } else if (keys[DIGIT_OFFSET + 4]) {
-        mesh.parameterize(CETM);
-        updateScene("CETM");
+        // TODO
+        // mesh.parameterize(CETM);
+        // updateScene("CETM");
         
     } else if (keys[DIGIT_OFFSET + 5]) {
         showCheckerboard = !showCheckerboard;

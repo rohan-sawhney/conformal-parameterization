@@ -26,6 +26,9 @@ public:
     // checks if this halfedge is contained in boundary loop
     bool onBoundary;
     
+    // computes opposite angle
+    double angle() const;
+    
     // computes the cotan value
     double cotan() const;
 };

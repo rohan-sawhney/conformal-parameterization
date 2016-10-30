@@ -1,5 +1,5 @@
 #include "Lscm.h"
-#include <Eigen/SparseCholesky>
+#include <eigen/SparseCholesky>
 
 Lscm::Lscm(Mesh& mesh0):
 Parameterization(mesh0)
@@ -170,8 +170,8 @@ void Lscm::setUvs(const Eigen::VectorXd& x)
 
 void Lscm::parameterize()
 {
-    int f = 2*((int)mesh.faces.size()-1); // -1 for boundary
-    int v = 2*((int)mesh.vertices.size()-2);
+    int f = 2*(int)(mesh.faces.size() - mesh.boundaries.size());
+    int v = 2*((int)mesh.vertices.size() - 2);
     
     // pin vertices
     pinVertices();

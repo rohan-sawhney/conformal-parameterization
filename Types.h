@@ -7,10 +7,9 @@
 #include <unordered_map>
 #include <iostream>
 #include "math.h"
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/SparseCore>
-#define EPSILON 1e-8
+#include <eigen/Core>
+#include <eigen/Dense>
+#include <eigen/SparseCore>
 #define SCP 0
 #define LSCM 1
 #define CIRCLE_PATTERNS 2

@@ -2,6 +2,7 @@
 #include "MeshIO.h"
 #include "Scp.h"
 #include "Lscm.h"
+#include "CirclePatterns.h"
 
 Mesh::Mesh()
 {
@@ -49,6 +50,7 @@ void Mesh::parameterize(int mode)
     Parameterization *param;
     if (mode == SCP) param = new Scp(*this);
     else if (mode == LSCM) param = new Lscm(*this);
+    else if (mode == CIRCLE_PATTERNS) param = new CirclePatterns(*this);
     
     param->parameterize();
     param->computeQcError();

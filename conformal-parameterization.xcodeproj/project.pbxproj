@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3231FA241DC5869100BCE60F /* MosekSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3231FA231DC5869100BCE60F /* MosekSolver.cpp */; };
+		3231FA2D1DC5880D00BCE60F /* CirclePatterns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3231FA2B1DC5880D00BCE60F /* CirclePatterns.cpp */; };
+		3231FA321DC6314900BCE60F /* libmosek64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3231FA2F1DC6314900BCE60F /* libmosek64.dylib */; };
+		3231FA331DC6314900BCE60F /* libmosek64.7.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3231FA301DC6314900BCE60F /* libmosek64.7.1.dylib */; };
+		3231FA341DC6314900BCE60F /* libiomp5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3231FA311DC6314900BCE60F /* libiomp5.dylib */; };
 		32B47E121DC2A72200BC7642 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47DF61DC2A72200BC7642 /* Camera.cpp */; };
 		32B47E131DC2A72200BC7642 /* Edge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47DF81DC2A72200BC7642 /* Edge.cpp */; };
 		32B47E141DC2A72200BC7642 /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47DFA1DC2A72200BC7642 /* Face.cpp */; };
@@ -26,18 +31,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		32B47DEA1DC2A6EE00BC7642 /* CopyFiles */ = {
+		32B47DEA1DC2A6EE00BC7642 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 8;
+			dstPath = usr/share/man/man1;
+			dstSubfolderSpec = 6;
 			files = (
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3231FA221DC5868B00BCE60F /* MosekSolver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MosekSolver.h; sourceTree = "<group>"; };
+		3231FA231DC5869100BCE60F /* MosekSolver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MosekSolver.cpp; sourceTree = "<group>"; };
+		3231FA2B1DC5880D00BCE60F /* CirclePatterns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CirclePatterns.cpp; sourceTree = "<group>"; };
+		3231FA2C1DC5880D00BCE60F /* CirclePatterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CirclePatterns.h; sourceTree = "<group>"; };
+		3231FA2E1DC5890500BCE60F /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		3231FA2F1DC6314900BCE60F /* libmosek64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosek64.dylib; path = deps/mosek/libmosek64.dylib; sourceTree = "<group>"; };
+		3231FA301DC6314900BCE60F /* libmosek64.7.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosek64.7.1.dylib; path = deps/mosek/libmosek64.7.1.dylib; sourceTree = "<group>"; };
+		3231FA311DC6314900BCE60F /* libiomp5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiomp5.dylib; path = deps/mosek/libiomp5.dylib; sourceTree = "<group>"; };
 		32B47DEC1DC2A6EE00BC7642 /* conformal-parameterization */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "conformal-parameterization"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32B47DF61DC2A72200BC7642 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		32B47DF71DC2A72200BC7642 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
@@ -76,6 +90,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3231FA321DC6314900BCE60F /* libmosek64.dylib in Frameworks */,
+				3231FA331DC6314900BCE60F /* libmosek64.7.1.dylib in Frameworks */,
+				3231FA341DC6314900BCE60F /* libiomp5.dylib in Frameworks */,
 				32B47E241DC2A73B00BC7642 /* GLUT.framework in Frameworks */,
 				32B47E221DC2A73300BC7642 /* OpenGL.framework in Frameworks */,
 			);
@@ -84,37 +101,66 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		32B47DE31DC2A6EE00BC7642 = {
+		3231FA191DC5838D00BCE60F /* Rendering */ = {
 			isa = PBXGroup;
 			children = (
 				32B47DF61DC2A72200BC7642 /* Camera.cpp */,
 				32B47DF71DC2A72200BC7642 /* Camera.h */,
+				32B47E091DC2A72200BC7642 /* RenderData.cpp */,
+				32B47E0A1DC2A72200BC7642 /* RenderData.h */,
+				32B47E0D1DC2A72200BC7642 /* Shader.cpp */,
+				32B47E0E1DC2A72200BC7642 /* Shader.h */,
+			);
+			name = Rendering;
+			sourceTree = "<group>";
+		};
+		3231FA1A1DC583A200BCE60F /* Core */ = {
+			isa = PBXGroup;
+			children = (
 				32B47DF81DC2A72200BC7642 /* Edge.cpp */,
 				32B47DF91DC2A72200BC7642 /* Edge.h */,
 				32B47DFA1DC2A72200BC7642 /* Face.cpp */,
 				32B47DFB1DC2A72200BC7642 /* Face.h */,
 				32B47DFC1DC2A72200BC7642 /* HalfEdge.cpp */,
 				32B47DFD1DC2A72200BC7642 /* HalfEdge.h */,
-				32B47DFE1DC2A72200BC7642 /* Lscm.cpp */,
-				32B47DFF1DC2A72200BC7642 /* Lscm.h */,
-				32B47E001DC2A72200BC7642 /* main.cpp */,
 				32B47E011DC2A72200BC7642 /* Mesh.cpp */,
 				32B47E021DC2A72200BC7642 /* Mesh.h */,
 				32B47E031DC2A72200BC7642 /* MeshIO.cpp */,
 				32B47E041DC2A72200BC7642 /* MeshIO.h */,
+				32B47E0F1DC2A72200BC7642 /* Types.h */,
+				32B47E101DC2A72200BC7642 /* Vertex.cpp */,
+				32B47E111DC2A72200BC7642 /* Vertex.h */,
+			);
+			name = Core;
+			sourceTree = "<group>";
+		};
+		3231FA1B1DC583B300BCE60F /* Parameterization */ = {
+			isa = PBXGroup;
+			children = (
+				3231FA2B1DC5880D00BCE60F /* CirclePatterns.cpp */,
+				3231FA2C1DC5880D00BCE60F /* CirclePatterns.h */,
+				32B47DFE1DC2A72200BC7642 /* Lscm.cpp */,
+				32B47DFF1DC2A72200BC7642 /* Lscm.h */,
 				32B47E051DC2A72200BC7642 /* Parameterization.cpp */,
 				32B47E061DC2A72200BC7642 /* Parameterization.h */,
 				32B47E071DC2A72200BC7642 /* QcError.cpp */,
 				32B47E081DC2A72200BC7642 /* QcError.h */,
-				32B47E091DC2A72200BC7642 /* RenderData.cpp */,
-				32B47E0A1DC2A72200BC7642 /* RenderData.h */,
 				32B47E0B1DC2A72200BC7642 /* Scp.cpp */,
 				32B47E0C1DC2A72200BC7642 /* Scp.h */,
-				32B47E0D1DC2A72200BC7642 /* Shader.cpp */,
-				32B47E0E1DC2A72200BC7642 /* Shader.h */,
-				32B47E0F1DC2A72200BC7642 /* Types.h */,
-				32B47E101DC2A72200BC7642 /* Vertex.cpp */,
-				32B47E111DC2A72200BC7642 /* Vertex.h */,
+				3231FA2E1DC5890500BCE60F /* Utils.h */,
+			);
+			name = Parameterization;
+			sourceTree = "<group>";
+		};
+		32B47DE31DC2A6EE00BC7642 = {
+			isa = PBXGroup;
+			children = (
+				32B47E001DC2A72200BC7642 /* main.cpp */,
+				3231FA221DC5868B00BCE60F /* MosekSolver.h */,
+				3231FA231DC5869100BCE60F /* MosekSolver.cpp */,
+				3231FA1B1DC583B300BCE60F /* Parameterization */,
+				3231FA1A1DC583A200BCE60F /* Core */,
+				3231FA191DC5838D00BCE60F /* Rendering */,
 				32B47DED1DC2A6EE00BC7642 /* Products */,
 				32B47E201DC2A73300BC7642 /* Frameworks */,
 			);
@@ -131,6 +177,9 @@
 		32B47E201DC2A73300BC7642 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3231FA2F1DC6314900BCE60F /* libmosek64.dylib */,
+				3231FA301DC6314900BCE60F /* libmosek64.7.1.dylib */,
+				3231FA311DC6314900BCE60F /* libiomp5.dylib */,
 				32B47E231DC2A73B00BC7642 /* GLUT.framework */,
 				32B47E211DC2A73300BC7642 /* OpenGL.framework */,
 			);
@@ -146,7 +195,7 @@
 			buildPhases = (
 				32B47DE81DC2A6EE00BC7642 /* Sources */,
 				32B47DE91DC2A6EE00BC7642 /* Frameworks */,
-				32B47DEA1DC2A6EE00BC7642 /* CopyFiles */,
+				32B47DEA1DC2A6EE00BC7642 /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -163,7 +212,7 @@
 		32B47DE41DC2A6EE00BC7642 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Rohan Sawhney";
 				TargetAttributes = {
 					32B47DEB1DC2A6EE00BC7642 = {
@@ -200,9 +249,11 @@
 				32B47E151DC2A72200BC7642 /* HalfEdge.cpp in Sources */,
 				32B47E171DC2A72200BC7642 /* main.cpp in Sources */,
 				32B47E1B1DC2A72200BC7642 /* QcError.cpp in Sources */,
+				3231FA2D1DC5880D00BCE60F /* CirclePatterns.cpp in Sources */,
 				32B47E1A1DC2A72200BC7642 /* Parameterization.cpp in Sources */,
 				32B47E1F1DC2A72200BC7642 /* Vertex.cpp in Sources */,
 				32B47E1D1DC2A72200BC7642 /* Scp.cpp in Sources */,
+				3231FA241DC5869100BCE60F /* MosekSolver.cpp in Sources */,
 				32B47E181DC2A72200BC7642 /* Mesh.cpp in Sources */,
 				32B47E131DC2A72200BC7642 /* Edge.cpp in Sources */,
 				32B47E121DC2A72200BC7642 /* Camera.cpp in Sources */,
@@ -232,6 +283,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -279,6 +331,7 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -304,7 +357,16 @@
 		32B47DF41DC2A6EE00BC7642 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				HEADER_SEARCH_PATHS = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps";
+				INSTALL_PATH = "/usr/local/bin ";
+				LD_DYLIB_INSTALL_NAME = "";
+				LD_RUNPATH_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps/mosek",
+					"$(PROJECT_DIR)/deps/mosek",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -312,7 +374,16 @@
 		32B47DF51DC2A6EE00BC7642 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				HEADER_SEARCH_PATHS = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps";
+				INSTALL_PATH = "/usr/local/bin ";
+				LD_DYLIB_INSTALL_NAME = "";
+				LD_RUNPATH_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps/mosek",
+					"$(PROJECT_DIR)/deps/mosek",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
