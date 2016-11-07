@@ -1,7 +1,7 @@
 #ifndef MOSEK_SOLVER_H
 #define MOSEK_SOLVER_H
 
-#include <mosek/mosek.h>
+#include <mosek/h/mosek.h>
 #include <functional>
 using namespace std::placeholders;
 
