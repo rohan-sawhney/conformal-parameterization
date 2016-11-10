@@ -28,6 +28,7 @@
 		32B47E1F1DC2A72200BC7642 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47E101DC2A72200BC7642 /* Vertex.cpp */; };
 		32B47E221DC2A73300BC7642 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B47E211DC2A73300BC7642 /* OpenGL.framework */; };
 		32B47E241DC2A73B00BC7642 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B47E231DC2A73B00BC7642 /* GLUT.framework */; };
+		EB1801A71DD36FAE009CEE03 /* Cetm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB1801A51DD36FAE009CEE03 /* Cetm.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -83,6 +84,8 @@
 		32B47E111DC2A72200BC7642 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
 		32B47E211DC2A73300BC7642 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		32B47E231DC2A73B00BC7642 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		EB1801A51DD36FAE009CEE03 /* Cetm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cetm.cpp; sourceTree = "<group>"; };
+		EB1801A61DD36FAE009CEE03 /* Cetm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cetm.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +140,8 @@
 		3231FA1B1DC583B300BCE60F /* Parameterization */ = {
 			isa = PBXGroup;
 			children = (
+				EB1801A51DD36FAE009CEE03 /* Cetm.cpp */,
+				EB1801A61DD36FAE009CEE03 /* Cetm.h */,
 				3231FA2B1DC5880D00BCE60F /* CirclePatterns.cpp */,
 				3231FA2C1DC5880D00BCE60F /* CirclePatterns.h */,
 				32B47DFE1DC2A72200BC7642 /* Lscm.cpp */,
@@ -255,6 +260,7 @@
 				32B47E1D1DC2A72200BC7642 /* Scp.cpp in Sources */,
 				3231FA241DC5869100BCE60F /* MosekSolver.cpp in Sources */,
 				32B47E181DC2A72200BC7642 /* Mesh.cpp in Sources */,
+				EB1801A71DD36FAE009CEE03 /* Cetm.cpp in Sources */,
 				32B47E131DC2A72200BC7642 /* Edge.cpp in Sources */,
 				32B47E121DC2A72200BC7642 /* Camera.cpp in Sources */,
 				32B47E1C1DC2A72200BC7642 /* RenderData.cpp in Sources */,
@@ -358,13 +364,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps";
+				HEADER_SEARCH_PATHS = "/Users/rsawhne1/Desktop/research/code/conformal-parameterization/deps";
 				INSTALL_PATH = "/usr/local/bin ";
 				LD_DYLIB_INSTALL_NAME = "";
 				LD_RUNPATH_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps/mosek",
+					"/Users/rsawhne1/Desktop/research/code/conformal-parameterization/deps/mosek/bin",
 					"$(PROJECT_DIR)/deps/mosek",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -375,13 +381,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps";
+				HEADER_SEARCH_PATHS = "/Users/rsawhne1/Desktop/research/code/conformal-parameterization/deps";
 				INSTALL_PATH = "/usr/local/bin ";
 				LD_DYLIB_INSTALL_NAME = "";
 				LD_RUNPATH_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps/mosek",
+					"/Users/rsawhne1/Desktop/research/code/conformal-parameterization/deps/mosek/bin",
 					"$(PROJECT_DIR)/deps/mosek",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";

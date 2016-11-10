@@ -3,6 +3,7 @@
 #include "Scp.h"
 #include "Lscm.h"
 #include "CirclePatterns.h"
+#include "Cetm.h"
 
 Mesh::Mesh()
 {
@@ -51,6 +52,7 @@ void Mesh::parameterize(int mode)
     if (mode == SCP) param = new Scp(*this);
     else if (mode == LSCM) param = new Lscm(*this);
     else if (mode == CIRCLE_PATTERNS) param = new CirclePatterns(*this);
+    else if (mode == CETM) param = new Cetm(*this);
     
     param->parameterize();
     param->computeQcError();
