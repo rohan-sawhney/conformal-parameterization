@@ -15,7 +15,7 @@ public:
     virtual void parameterize() = 0;
     
     // computes quasi conformal error
-    void computeQcError();
+    double computeQcError();
     
 protected:
     // normalize

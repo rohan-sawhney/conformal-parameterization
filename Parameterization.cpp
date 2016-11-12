@@ -62,8 +62,9 @@ void Parameterization::normalize()
     }
 }
 
-void Parameterization::computeQcError()
+double Parameterization::computeQcError()
 {
+    double avgQc = 0.0, maxQc = 0.0, totArea = 0.0;
     for (FaceIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
         std::vector<Eigen::Vector3d> p, q;
         HalfEdgeCIter he = f->he;
@@ -74,6 +75,14 @@ void Parameterization::computeQcError()
             he = he->next;
         } while (he != f->he);
         
-        f->qcError = QuasiConformalError::color(QuasiConformalError::compute(p, q));
+        double error = QuasiConformalError::compute(p, q);
+        double area = f->area();
+        avgQc += area * error;
+        maxQc = std::max(maxQc, error);
+        totArea += area;
+        f->qcError = QuasiConformalError::color(error);
     }
+    
+    avgQc /= totArea;
+    return avgQc;
 }

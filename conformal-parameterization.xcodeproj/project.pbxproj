@@ -364,7 +364,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = "/Users/rsawhne1/Desktop/research/code/conformal-parameterization/deps";
+				HEADER_SEARCH_PATHS = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps";
 				INSTALL_PATH = "/usr/local/bin ";
 				LD_DYLIB_INSTALL_NAME = "";
 				LD_RUNPATH_SEARCH_PATHS = "";
@@ -381,7 +381,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				HEADER_SEARCH_PATHS = "/Users/rsawhne1/Desktop/research/code/conformal-parameterization/deps";
+				HEADER_SEARCH_PATHS = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/deps";
 				INSTALL_PATH = "/usr/local/bin ";
 				LD_DYLIB_INSTALL_NAME = "";
 				LD_RUNPATH_SEARCH_PATHS = "";

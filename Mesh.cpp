@@ -55,7 +55,7 @@ void Mesh::parameterize(int mode)
     else if (mode == CETM) param = new Cetm(*this);
     
     param->parameterize();
-    param->computeQcError();
+    std::cout << "Average QC: " << param->computeQcError() << std::endl;
     delete param;
 }
 
