@@ -375,5 +375,4 @@ void Cetm::parameterize()
     
     // TODOs
     // 1) implement natural boundary conditions
-    // 2) fix u's to control length distortion
 }

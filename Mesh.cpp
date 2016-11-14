@@ -46,7 +46,7 @@ bool Mesh::write(const std::string& fileName) const
     return false;
 }
 
-void Mesh::parameterize(int mode)
+double Mesh::parameterize(int mode)
 {
     Parameterization *param;
     if (mode == SCP) param = new Scp(*this);
@@ -55,8 +55,10 @@ void Mesh::parameterize(int mode)
     else if (mode == CETM) param = new Cetm(*this);
     
     param->parameterize();
-    std::cout << "Average QC: " << param->computeQcError() << std::endl;
+    double qcError = param->computeQcError();
     delete param;
+    
+    return qcError;
 }
 
 void Mesh::normalize()

@@ -102,8 +102,6 @@ void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A,
         // normalize
         x.normalize();
     }
-    
-    std::cout << "residual: " << residual(A, B, x) << std::endl;
 }
 
 void Scp::setUvs(const Eigen::VectorXcd& z)

@@ -22,7 +22,7 @@ public:
     bool write(const std::string& fileName) const;
     
     // computes conformal parameterization
-    void parameterize(int mode);
+    double parameterize(int mode);
         
     // member variables
     std::vector<HalfEdge> halfEdges;

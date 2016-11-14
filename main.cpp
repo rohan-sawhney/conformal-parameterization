@@ -1,6 +1,7 @@
 #include "Mesh.h"
 #include "RenderData.h"
 #include "Camera.h"
+#include <time.h>
 
 #define ESCAPE 27
 #define DIGIT_OFFSET 48
@@ -43,6 +44,32 @@ bool showQcError = false;
 bool showNormals = false;
 bool showWireframe = false;
 bool pickingEnabled = false;
+
+void runConvergenceTest()
+{
+    size_t s = path.find_last_of("/") + 1;
+    size_t e = path.find_last_of(".") - 1;
+    std::cout << "Mesh name: " << path.substr(s, e - s) << std::endl;
+    
+    for (int i = 1; i <= 5; i++) {
+        path.replace(e, 1, std::to_string(i));
+        if (mesh.read(path)) {            
+            std::cout << "\nTriangles: " << mesh.faces.size() << std::endl;
+            
+            for (int j = 0; j <= CETM; j++) {
+                clock_t t = clock();
+                double distortion = mesh.parameterize(j);
+                t = clock() - t;
+                
+                std::cout << "Method: " << (j == 0 ? "SCP" :
+                                            (j == 1 ? "LSCM" :
+                                             (j == 2 ? "CIRCLE PATTERNS" : "CETM"))) << std::endl;
+                std::cout << "Conformal Distortion: " << distortion << std::endl;
+                std::cout << "Time: " << ((float)t/CLOCKS_PER_SEC) << "s" << std::endl;
+            }
+        }
+    }
+}
 
 void setupShaders()
 {
@@ -398,36 +425,66 @@ void mouse(int x, int y)
     camera.processMouse(dx, dy);
 }
 
+void printUsage(char *programName)
+{
+    std::cout << "Usage: "
+              << programName
+              << "-run_test 0/1 -obj_path PATH -shader_path PATH"
+              << std::endl;
+}
+
 int main(int argc, char** argv)
 {
     // TODOs:
-    // 1) Bug fix Cetm
-    // 2) Create Test Framework - report qc error vs mesh resolution
-    // 3) Implement Cetm & Circle Patterns with LBFGS and trust method
+    // 1) Complete Cetm - specify natural boundary conditions
+    // 2) Implement Cetm & Circle Patterns with LBFGS and trust method
     
-    if (argc != 3) {
-        std::cout << "Usage: " << argv[0] << " OBJ_PATH SHADER_PATH" << std::endl;
+    // parse
+    bool runTest = false;
+    bool objPathSpecified = false;
+    bool shaderPathSpecified = false;
+    for (int i = 1; i < argc; i++) {
+        if (std::string(argv[i]) == "-run_test" && i+1 < argc) {
+            runTest = (bool)std::atoi(argv[i+1]);
+            i++;
+        
+        } else if (std::string(argv[i]) == "-obj_path" && i+1 < argc) {
+            path = argv[i+1];
+            objPathSpecified = true;
+            i++;
+        
+        } else if (std::string(argv[i]) == "-shader_path" && i+1 < argc) {
+            shaderPath = argv[i+1];
+            shaderPathSpecified = true;
+            i++;
+        }
     }
     
-    path = argv[1];
-    shaderPath = argv[2];
+    if (runTest) {
+        if (objPathSpecified) runConvergenceTest();
+        else printUsage(argv[0]);
+        
+    } else if (objPathSpecified && shaderPathSpecified) {
+        glutInit(&argc, argv);
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE | GLUT_MULTISAMPLE);
+        glutInitWindowSize(gridX, gridY);
+        glutCreateWindow("Conformal Parameterization: SCP");
+        
+        init();
+        mesh.parameterize(SCP);
+        updateScene("SCP");
+        
+        glutDisplayFunc(display);
+        glutIdleFunc(idle);
+        glutKeyboardFunc(keyboardPressed);
+        glutKeyboardUpFunc(keyboardReleased);
+        glutMouseFunc(mousePressed);
+        glutMotionFunc(mouse);
+        glutMainLoop();
     
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_3_2_CORE_PROFILE | GLUT_MULTISAMPLE);
-    glutInitWindowSize(gridX, gridY);
-    glutCreateWindow("Conformal Parameterization: SCP");
-    
-    init();
-    mesh.parameterize(SCP);
-    updateScene("SCP");
-    
-    glutDisplayFunc(display);
-    glutIdleFunc(idle);
-    glutKeyboardFunc(keyboardPressed);
-    glutKeyboardUpFunc(keyboardReleased);
-    glutMouseFunc(mousePressed);
-    glutMotionFunc(mouse);
-    glutMainLoop();
+    } else {
+        printUsage(argv[0]);
+    }
     
     return 0;
 }

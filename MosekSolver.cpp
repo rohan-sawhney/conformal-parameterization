@@ -40,7 +40,7 @@ bool MosekSolver::createTask(MSKtask_t& task)
     r = MSK_maketask(env, constraints, variables, &task);
     if (r != MSK_RES_OK) return false;
     
-    MSK_linkfunctotaskstream(task, MSK_STREAM_LOG, NULL, printError);
+    //MSK_linkfunctotaskstream(task, MSK_STREAM_LOG, NULL, printError);
     
     return true;
 }

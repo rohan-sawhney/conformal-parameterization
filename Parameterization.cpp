@@ -64,23 +64,24 @@ void Parameterization::normalize()
 
 double Parameterization::computeQcError()
 {
-    double avgQc = 0.0, maxQc = 0.0, totArea = 0.0;
+    double avgQc = 0.0, totArea = 0.0;
     for (FaceIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        std::vector<Eigen::Vector3d> p, q;
-        HalfEdgeCIter he = f->he;
-        do {
-            p.push_back(he->vertex->position);
-            q.push_back(Eigen::Vector3d(he->vertex->uv.x(), he->vertex->uv.y(), 0));
+        if (!f->isBoundary()) {
+            std::vector<Eigen::Vector3d> p, q;
+            HalfEdgeCIter he = f->he;
+            do {
+                p.push_back(he->vertex->position);
+                q.push_back(Eigen::Vector3d(he->vertex->uv.x(), he->vertex->uv.y(), 0));
+                
+                he = he->next;
+            } while (he != f->he);
             
-            he = he->next;
-        } while (he != f->he);
-        
-        double error = QuasiConformalError::compute(p, q);
-        double area = f->area();
-        avgQc += area * error;
-        maxQc = std::max(maxQc, error);
-        totArea += area;
-        f->qcError = QuasiConformalError::color(error);
+            double error = QuasiConformalError::compute(p, q);
+            double area = f->area();
+            avgQc += area * error;
+            totArea += area;
+            f->qcError = QuasiConformalError::color(error);
+        }
     }
     
     avgQc /= totArea;
