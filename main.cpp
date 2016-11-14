@@ -112,7 +112,7 @@ void printInstructions()
 
 void setDefaultColors()
 {
-    const Eigen::Vector3f color(0.0, 0.0, 1.0);
+    const Eigen::Vector3f color(1.0, 0.5, 0.2);
     defaultColors.resize(mesh.faces.size());
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
         defaultColors[f->index] = color;
