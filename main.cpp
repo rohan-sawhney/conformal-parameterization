@@ -112,10 +112,10 @@ void printInstructions()
 
 void setDefaultColors()
 {
-    const Eigen::Vector3f blue(0.0, 0.0, 1.0);
+    const Eigen::Vector3f color(0.0, 0.0, 1.0);
     defaultColors.resize(mesh.faces.size());
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        defaultColors[f->index] = blue;
+        defaultColors[f->index] = color;
     }
 }
 
@@ -401,10 +401,9 @@ void mouse(int x, int y)
 int main(int argc, char** argv)
 {
     // TODOs:
-    // 1) Circle Patterns
-    // 2) Cetm
-    // 3) LBFGS
-    // 4) Subdivision
+    // 1) Bug fix Cetm
+    // 2) Create Test Framework - report qc error vs mesh resolution
+    // 3) Implement Cetm & Circle Patterns with LBFGS and trust method
     
     if (argc != 3) {
         std::cout << "Usage: " << argv[0] << " OBJ_PATH SHADER_PATH" << std::endl;

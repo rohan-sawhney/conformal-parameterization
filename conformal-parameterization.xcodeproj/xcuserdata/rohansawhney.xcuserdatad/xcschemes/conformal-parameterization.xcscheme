@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/bunnyhead.obj /Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/shaders"
+            argument = "/Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/girlface.obj /Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/shaders"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

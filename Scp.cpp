@@ -9,6 +9,28 @@ Parameterization(mesh0)
     
 }
 
+void Scp::setBoundaryIndices(Eigen::SparseMatrix<std::complex<double>>& B,
+                             Eigen::VectorXcd& e) const
+{
+    std::vector<Eigen::Triplet<std::complex<double>>> BTriplets;
+    
+    HalfEdgeCIter he = mesh.boundaries[0];
+    
+    int nB = 0;
+    HalfEdgeCIter h = he;
+    do {
+        int i = h->vertex->index;
+        BTriplets.push_back(Eigen::Triplet<std::complex<double>>(i, i, 1.0));
+        e(i) = 1.0;
+        nB++;
+        
+        h = h->next;
+    } while (h != he);
+    B.setFromTriplets(BTriplets.begin(), BTriplets.end());
+    
+    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) e(v->index) /= sqrt(nB);
+}
+
 void Scp::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) const
 {
     std::vector<Eigen::Triplet<std::complex<double>>> ETriplets;
@@ -30,7 +52,7 @@ void Scp::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) con
             he = he->flip->next;
         } while (he != v->he);
         
-        ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index, v->index, sumCoefficients + EPSILON));
+        ETriplets.push_back(Eigen::Triplet<std::complex<double>>(v->index, v->index, sumCoefficients));
     }
     
     // subtract area term from dirichlet energy
@@ -54,14 +76,16 @@ void Scp::buildConformalEnergy(Eigen::SparseMatrix<std::complex<double>>& E) con
 }
 
 double residual(const Eigen::SparseMatrix<std::complex<double>>& A,
+                const Eigen::SparseMatrix<std::complex<double>>& B,
                 const Eigen::VectorXcd& x)
 {
-    std::complex<double> lambda = x.dot(A*x) / x.dot(x);
-    return (A*x - lambda*x).norm() / x.norm();
+    std::complex<double> lambda = x.dot(A*x) / x.dot(B*x);
+    return (A*x - lambda*B*x).norm() / x.norm();
 }
 
 void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A,
-                             Eigen::VectorXcd& x)
+                             const Eigen::SparseMatrix<std::complex<double>>& B,
+                             const Eigen::VectorXcd& e, Eigen::VectorXcd& x)
 {
     // solves A x = lambda (B - EE^T) x for the smallest nonzero eigenvalue lambda
     // A must be positive (semi-)definite, B must be symmetric; EE^T is a low-rank matrix, and
@@ -72,17 +96,14 @@ void solveInversePowerMethod(const Eigen::SparseMatrix<std::complex<double>>& A,
     
     for (int i = 0; i < MAX_ITER; i++) {
         // backsolve
+        x = B*x - e*(e.dot(x));
         x = solver.solve(x);
-        
-        // center
-        std::complex<double> mean = x.sum() / (double)x.size();
-        for (int i = 0; i < x.size(); i++) x(i) -= mean;
         
         // normalize
         x.normalize();
     }
     
-    std::cout << "residual: " << residual(A, x) << std::endl;
+    std::cout << "residual: " << residual(A, B, x) << std::endl;
 }
 
 void Scp::setUvs(const Eigen::VectorXcd& z)
@@ -100,13 +121,19 @@ void Scp::parameterize()
 {
     int v = (int)mesh.vertices.size();
     
+    // set boundary indices
+    Eigen::SparseMatrix<std::complex<double>>B (v, v);
+    Eigen::VectorXcd e = Eigen::VectorXcd::Zero(v);
+    setBoundaryIndices(B, e);
+    
     // build conformal energy
     Eigen::SparseMatrix<std::complex<double>> E(v, v);
     buildConformalEnergy(E);
+    E += std::complex<double>(EPSILON) * B;
     
     // find eigenvector corresponding to smallest eigenvalue
     Eigen::VectorXcd z = Eigen::VectorXcd::Random(v);
-    solveInversePowerMethod(E, z);
+    solveInversePowerMethod(E, B, e, z);
     
     // set uv coords
     setUvs(z);

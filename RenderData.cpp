@@ -21,7 +21,7 @@ void GLMesh::fillBuffers(const std::vector<Eigen::Vector3f>& colors)
                 VertexCIter v = h->vertex;
                 
                 // set vertex
-                vertices[fIdx+i].position = h->vertex->position.cast<float>();
+                vertices[fIdx+i].position = v->position.cast<float>();
                 vertices[fIdx+i].normal = v->normal().cast<float>();
                 vertices[fIdx+i].color = colors[f->index];
                 vertices[fIdx+i].uv = v->uv.cast<float>();

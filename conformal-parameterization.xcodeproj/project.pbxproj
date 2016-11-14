@@ -9,9 +9,9 @@
 /* Begin PBXBuildFile section */
 		3231FA241DC5869100BCE60F /* MosekSolver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3231FA231DC5869100BCE60F /* MosekSolver.cpp */; };
 		3231FA2D1DC5880D00BCE60F /* CirclePatterns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3231FA2B1DC5880D00BCE60F /* CirclePatterns.cpp */; };
-		3231FA321DC6314900BCE60F /* libmosek64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3231FA2F1DC6314900BCE60F /* libmosek64.dylib */; };
-		3231FA331DC6314900BCE60F /* libmosek64.7.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3231FA301DC6314900BCE60F /* libmosek64.7.1.dylib */; };
-		3231FA341DC6314900BCE60F /* libiomp5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3231FA311DC6314900BCE60F /* libiomp5.dylib */; };
+		323C90441DDA30E9005DCCDB /* libmosek64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 323C90411DDA30E9005DCCDB /* libmosek64.dylib */; };
+		323C90451DDA30E9005DCCDB /* libmosek64.7.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 323C90421DDA30E9005DCCDB /* libmosek64.7.1.dylib */; };
+		323C90461DDA30E9005DCCDB /* libiomp5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 323C90431DDA30E9005DCCDB /* libiomp5.dylib */; };
 		32B47E121DC2A72200BC7642 /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47DF61DC2A72200BC7642 /* Camera.cpp */; };
 		32B47E131DC2A72200BC7642 /* Edge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47DF81DC2A72200BC7642 /* Edge.cpp */; };
 		32B47E141DC2A72200BC7642 /* Face.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47DFA1DC2A72200BC7642 /* Face.cpp */; };
@@ -50,9 +50,9 @@
 		3231FA2B1DC5880D00BCE60F /* CirclePatterns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CirclePatterns.cpp; sourceTree = "<group>"; };
 		3231FA2C1DC5880D00BCE60F /* CirclePatterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CirclePatterns.h; sourceTree = "<group>"; };
 		3231FA2E1DC5890500BCE60F /* Utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
-		3231FA2F1DC6314900BCE60F /* libmosek64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosek64.dylib; path = deps/mosek/libmosek64.dylib; sourceTree = "<group>"; };
-		3231FA301DC6314900BCE60F /* libmosek64.7.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosek64.7.1.dylib; path = deps/mosek/libmosek64.7.1.dylib; sourceTree = "<group>"; };
-		3231FA311DC6314900BCE60F /* libiomp5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiomp5.dylib; path = deps/mosek/libiomp5.dylib; sourceTree = "<group>"; };
+		323C90411DDA30E9005DCCDB /* libmosek64.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosek64.dylib; path = deps/mosek/bin/libmosek64.dylib; sourceTree = "<group>"; };
+		323C90421DDA30E9005DCCDB /* libmosek64.7.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosek64.7.1.dylib; path = deps/mosek/bin/libmosek64.7.1.dylib; sourceTree = "<group>"; };
+		323C90431DDA30E9005DCCDB /* libiomp5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiomp5.dylib; path = deps/mosek/bin/libiomp5.dylib; sourceTree = "<group>"; };
 		32B47DEC1DC2A6EE00BC7642 /* conformal-parameterization */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "conformal-parameterization"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32B47DF61DC2A72200BC7642 /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		32B47DF71DC2A72200BC7642 /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
@@ -93,9 +93,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3231FA321DC6314900BCE60F /* libmosek64.dylib in Frameworks */,
-				3231FA331DC6314900BCE60F /* libmosek64.7.1.dylib in Frameworks */,
-				3231FA341DC6314900BCE60F /* libiomp5.dylib in Frameworks */,
+				323C90441DDA30E9005DCCDB /* libmosek64.dylib in Frameworks */,
+				323C90451DDA30E9005DCCDB /* libmosek64.7.1.dylib in Frameworks */,
+				323C90461DDA30E9005DCCDB /* libiomp5.dylib in Frameworks */,
 				32B47E241DC2A73B00BC7642 /* GLUT.framework in Frameworks */,
 				32B47E221DC2A73300BC7642 /* OpenGL.framework in Frameworks */,
 			);
@@ -182,9 +182,9 @@
 		32B47E201DC2A73300BC7642 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				3231FA2F1DC6314900BCE60F /* libmosek64.dylib */,
-				3231FA301DC6314900BCE60F /* libmosek64.7.1.dylib */,
-				3231FA311DC6314900BCE60F /* libiomp5.dylib */,
+				323C90411DDA30E9005DCCDB /* libmosek64.dylib */,
+				323C90421DDA30E9005DCCDB /* libmosek64.7.1.dylib */,
+				323C90431DDA30E9005DCCDB /* libiomp5.dylib */,
 				32B47E231DC2A73B00BC7642 /* GLUT.framework */,
 				32B47E211DC2A73300BC7642 /* OpenGL.framework */,
 			);
@@ -372,6 +372,7 @@
 					"$(inherited)",
 					"/Users/rsawhne1/Desktop/research/code/conformal-parameterization/deps/mosek/bin",
 					"$(PROJECT_DIR)/deps/mosek",
+					"$(PROJECT_DIR)/deps/mosek/bin",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -389,6 +390,7 @@
 					"$(inherited)",
 					"/Users/rsawhne1/Desktop/research/code/conformal-parameterization/deps/mosek/bin",
 					"$(PROJECT_DIR)/deps/mosek",
+					"$(PROJECT_DIR)/deps/mosek/bin",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
