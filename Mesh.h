@@ -23,6 +23,9 @@ public:
     
     // computes conformal parameterization
     double parameterize(int mode);
+    
+    // computes mean edge length
+    double meanEdgeLength();
         
     // member variables
     std::vector<HalfEdge> halfEdges;

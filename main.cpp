@@ -53,8 +53,9 @@ void runConvergenceTest()
     
     for (int i = 1; i <= 5; i++) {
         path.replace(e, 1, std::to_string(i));
-        if (mesh.read(path)) {            
-            std::cout << "\nTriangles: " << mesh.faces.size() << std::endl;
+        if (mesh.read(path)) {
+            std::cout << "\nMean Edge Length: " << mesh.meanEdgeLength() << std::endl;
+            std::cout << "Triangles: " << mesh.faces.size() << std::endl;
             
             for (int j = 0; j <= CETM; j++) {
                 clock_t t = clock();

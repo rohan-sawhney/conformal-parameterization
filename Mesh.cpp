@@ -29,6 +29,7 @@ bool Mesh::read(const std::string& fileName)
         normalize();
     }
     
+    in.close();
     return readSuccessful;
 }
 
@@ -43,6 +44,7 @@ bool Mesh::write(const std::string& fileName) const
     
     MeshIO::write(out, *this);
     
+    out.close();
     return false;
 }
 
@@ -59,6 +61,16 @@ double Mesh::parameterize(int mode)
     delete param;
     
     return qcError;
+}
+
+double Mesh::meanEdgeLength()
+{
+    double sum = 0.0;
+    for (EdgeCIter e = edges.begin(); e != edges.end(); e++) {
+        sum += e->length();
+    }
+    
+    return sum / edges.size();
 }
 
 void Mesh::normalize()
