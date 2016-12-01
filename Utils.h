@@ -2,6 +2,8 @@
 #define UTILS_H
 
 #include <math.h> 
+#include "MosekSolver.h"
+#include <dlib/optimization.h>
 
 // Implementation of Clausen integral
 inline double Cl2(double x)

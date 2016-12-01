@@ -1,6 +1,7 @@
 #include "Mesh.h"
 #include "RenderData.h"
 #include "Camera.h"
+#include "Subdivision.h"
 #include <time.h>
 
 #define ESCAPE 27
@@ -48,15 +49,19 @@ bool pickingEnabled = false;
 void runConvergenceTest()
 {
     size_t s = path.find_last_of("/") + 1;
-    size_t e = path.find_last_of(".") - 1;
+    size_t e = path.find_last_of(".");
     std::cout << "Mesh name: " << path.substr(s, e - s) << std::endl;
     
-    for (int i = 1; i <= 5; i++) {
-        path.replace(e, 1, std::to_string(i));
-        if (mesh.read(path)) {
+    Subdivision subdivision;
+    if (mesh.read(path)) {
+        for (int i = 0; i < 5; i++) {
             std::cout << "\nMean Edge Length: " << mesh.meanEdgeLength() << std::endl;
             std::cout << "Triangles: " << mesh.faces.size() << std::endl;
             
+            // delaunayize
+            mesh.delaunayize();
+            
+            // parameterize
             for (int j = 0; j <= CETM; j++) {
                 clock_t t = clock();
                 double distortion = mesh.parameterize(j);
@@ -68,6 +73,9 @@ void runConvergenceTest()
                 std::cout << "Conformal Distortion: " << distortion << std::endl;
                 std::cout << "Time: " << ((float)t/CLOCKS_PER_SEC) << "s" << std::endl;
             }
+            
+            // subdivide
+            subdivision.subdivide(mesh);
         }
     }
 }

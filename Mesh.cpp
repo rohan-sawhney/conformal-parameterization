@@ -63,6 +63,43 @@ double Mesh::parameterize(int mode)
     return qcError;
 }
 
+void Mesh::delaunayize()
+{
+    std::stack<EdgeIter> stack;
+    std::unordered_map<int, bool> marked;
+    
+    // initialize
+    for (EdgeIter e = edges.begin(); e != edges.end(); e++) {
+        stack.push(e);
+        marked[e->index] = true;
+    }
+    
+    // delaunayize
+    while (!stack.empty()) {
+        EdgeIter e = stack.top(); stack.pop();
+        marked[e->index] = false;
+        
+        // check delaunay property
+        if (!e->isBoundary() && e->cotanWeigth() < 0.0) {
+            e->flip();
+            
+            HalfEdgeCIter he = e->he;
+            std::vector<EdgeIter> quadEdges = {he->next->edge,
+                                               he->next->next->edge,
+                                               he->flip->next->edge,
+                                               he->flip->next->next->edge};
+            // Push unmarked quad edges
+            for (size_t i = 0; i < quadEdges.size(); i++) {
+                EdgeIter qe = quadEdges[i];
+                if (!marked[qe->index]) {
+                    marked[qe->index] = true;
+                    stack.push(qe);
+                }
+            }
+        }
+    }
+}
+
 double Mesh::meanEdgeLength()
 {
     double sum = 0.0;

@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-run_test 1 -obj_path /Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/bunnyhead1.obj -shader_path /Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/shaders"
+            argument = "-run_test 1 -obj_path /Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/objs/cathead.obj -shader_path /Users/rohansawhney/Desktop/developer/C++/conformal-parameterization/shaders"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

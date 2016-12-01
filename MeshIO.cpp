@@ -3,36 +3,6 @@
 #include <set>
 #include <map>
 
-class Index {
-public:
-    Index() {}
-    
-    Index(int v, int vt, int vn): position(v), uv(vt), normal(vn) {}
-    
-    bool operator<(const Index& i) const {
-        if (position < i.position) return true;
-        if (position > i.position) return false;
-        if (uv < i.uv) return true;
-        if (uv > i.uv) return false;
-        if (normal < i.normal) return true;
-        if (normal > i.normal) return false;
-        
-        return false;
-    }
-    
-    int position;
-    int uv;
-    int normal;
-};
-
-class MeshData {
-public:
-    std::vector<Eigen::Vector3d> positions;
-    std::vector<Eigen::Vector3d> uvs;
-    std::vector<Eigen::Vector3d> normals;
-    std::vector<std::vector<Index>> indices;
-};
-
 Index parseFaceIndex(const std::string& token)
 {
     std::stringstream in(token);
@@ -416,9 +386,9 @@ void MeshIO::write(std::ofstream& out, const Mesh& mesh)
         out << "f ";
         int j = 0;
         do {
-            out << he->vertex->index << "/"
-                << he->vertex->index << "/"
-                << he->vertex->index << " ";
+            out << he->vertex->index+1 << "/"
+                << he->vertex->index+1 << "/"
+                << he->vertex->index+1 << " ";
             j++;
             
             he = he->next;

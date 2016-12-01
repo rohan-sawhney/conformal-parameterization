@@ -1,5 +1,4 @@
 #include "Cetm.h"
-#include "Utils.h"
 #define cot(x) (tan(M_PI_2 - x))
 
 Cetm::Cetm(Mesh& mesh0):

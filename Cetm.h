@@ -2,7 +2,7 @@
 #define CETM_H
 
 #include "Parameterization.h"
-#include "MosekSolver.h"
+#include "Utils.h"
 #include <stack>
 
 class Cetm: public Parameterization {

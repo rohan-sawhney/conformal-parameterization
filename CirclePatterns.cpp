@@ -1,5 +1,4 @@
 #include "CirclePatterns.h"
-#include "Utils.h"
 #define EPSILON 1e-3
 
 CirclePatterns::CirclePatterns(Mesh& mesh0):

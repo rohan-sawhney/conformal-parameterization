@@ -2,7 +2,7 @@
 #define CIRCLE_PATTERNS_H
 
 #include "Parameterization.h"
-#include "MosekSolver.h"
+#include "Utils.h"
 #include <stack>
 
 class CirclePatterns: public Parameterization {

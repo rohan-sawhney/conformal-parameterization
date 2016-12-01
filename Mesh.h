@@ -24,6 +24,9 @@ public:
     // computes conformal parameterization
     double parameterize(int mode);
     
+    // delaunayize
+    void delaunayize();
+    
     // computes mean edge length
     double meanEdgeLength();
         
