@@ -55,7 +55,7 @@ protected:
     Eigen::VectorXd radii;
     Eigen::VectorXi eIntIndices;
     int imaginaryHe;
-    MosekSolver solver;
+    MosekSolver::Solver solver;
 };
 
 #endif 

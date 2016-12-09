@@ -134,7 +134,7 @@ bool CirclePatterns::computeAngles()
     setupAngleOptProblem();
     
     // solve
-    bool success = solver.solve(QO);
+    bool success = solver.solve(MosekSolver::QO);
     if (success) setThetas();
     
     // reset solver
@@ -315,8 +315,8 @@ bool CirclePatterns::computeRadii()
     // setup optimization problem
     setupRadiiOptProblem();
     
-    MeshHandle handle((int)(mesh.faces.size()-mesh.boundaries.size()),
-                      (int)(mesh.faces.size()+mesh.edges.size()-imaginaryHe-mesh.boundaries.size()));
+    MosekSolver::MeshHandle handle((int)(mesh.faces.size()-mesh.boundaries.size()),
+                                   (int)(mesh.faces.size()+mesh.edges.size()-imaginaryHe-mesh.boundaries.size()));
     handle.computeEnergy = std::bind(&CirclePatterns::computeEnergy, this, _1, _2);
     handle.computeGradient = std::bind(&CirclePatterns::computeGradient, this, _1, _2);
     handle.computeHessian = std::bind(&CirclePatterns::computeHessian, this, _1, _2);
@@ -325,7 +325,7 @@ bool CirclePatterns::computeRadii()
     solver.handle = &handle;
     
     // solve
-    bool success = solver.solve(GECO);
+    bool success = solver.solve(MosekSolver::GECO);
     if (success) setRadii();
     
     // reset solver

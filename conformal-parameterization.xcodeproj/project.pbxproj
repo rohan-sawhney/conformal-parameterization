@@ -29,6 +29,7 @@
 		32B47E1F1DC2A72200BC7642 /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32B47E101DC2A72200BC7642 /* Vertex.cpp */; };
 		32B47E221DC2A73300BC7642 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B47E211DC2A73300BC7642 /* OpenGL.framework */; };
 		32B47E241DC2A73B00BC7642 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B47E231DC2A73B00BC7642 /* GLUT.framework */; };
+		32C4D1401DFB6BC9001C1F49 /* Solver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32C4D13E1DFB6BC9001C1F49 /* Solver.cpp */; };
 		EB1801A71DD36FAE009CEE03 /* Cetm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB1801A51DD36FAE009CEE03 /* Cetm.cpp */; };
 /* End PBXBuildFile section */
 
@@ -87,6 +88,8 @@
 		32B47E111DC2A72200BC7642 /* Vertex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vertex.h; sourceTree = "<group>"; };
 		32B47E211DC2A73300BC7642 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		32B47E231DC2A73B00BC7642 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		32C4D13E1DFB6BC9001C1F49 /* Solver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Solver.cpp; sourceTree = "<group>"; };
+		32C4D13F1DFB6BC9001C1F49 /* Solver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Solver.h; sourceTree = "<group>"; };
 		EB1801A51DD36FAE009CEE03 /* Cetm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cetm.cpp; sourceTree = "<group>"; };
 		EB1801A61DD36FAE009CEE03 /* Cetm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cetm.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,6 +167,8 @@
 			isa = PBXGroup;
 			children = (
 				32B47E001DC2A72200BC7642 /* main.cpp */,
+				32C4D13F1DFB6BC9001C1F49 /* Solver.h */,
+				32C4D13E1DFB6BC9001C1F49 /* Solver.cpp */,
 				3231FA221DC5868B00BCE60F /* MosekSolver.h */,
 				3231FA231DC5869100BCE60F /* MosekSolver.cpp */,
 				3242E3091DF0B7B500CD8BCA /* Subdivision.h */,
@@ -253,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32C4D1401DFB6BC9001C1F49 /* Solver.cpp in Sources */,
 				32B47E1E1DC2A72200BC7642 /* Shader.cpp in Sources */,
 				32B47E191DC2A72200BC7642 /* MeshIO.cpp in Sources */,
 				32B47E141DC2A72200BC7642 /* Face.cpp in Sources */,

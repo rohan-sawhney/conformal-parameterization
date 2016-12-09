@@ -480,6 +480,7 @@ int main(int argc, char** argv)
         glutCreateWindow("Conformal Parameterization: SCP");
         
         init();
+        mesh.delaunayize();
         mesh.parameterize(SCP);
         updateScene("SCP");
         

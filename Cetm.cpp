@@ -285,7 +285,7 @@ bool Cetm::computeScaleFactors()
     // setup optimization problem
     setupOptProblem();
     
-    MeshHandle handle((int)mesh.vertices.size(), (int)(mesh.vertices.size() + mesh.edges.size()));
+    MosekSolver::MeshHandle handle((int)mesh.vertices.size(), (int)(mesh.vertices.size() + mesh.edges.size()));
     handle.computeEnergy = std::bind(&Cetm::computeEnergy, this, _1, _2);
     handle.computeGradient = std::bind(&Cetm::computeGradient, this, _1, _2);
     handle.computeHessian = std::bind(&Cetm::computeHessian, this, _1, _2);
@@ -294,7 +294,7 @@ bool Cetm::computeScaleFactors()
     solver.handle = &handle;
     
     // solve
-    bool success = solver.solve(GECO);
+    bool success = solver.solve(MosekSolver::GECO);
     if (success) setEdgeLengthsAndAngles();
     
     // reset solver

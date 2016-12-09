@@ -1,6 +1,7 @@
 #include "MosekSolver.h"
+using namespace MosekSolver;
 
-MosekSolver::MosekSolver():
+Solver::Solver():
 bkc(NULL), bkx(NULL),
 ptrb(NULL), ptre(NULL), asub(NULL), qsubi(NULL), qsubj(NULL),
 blc(NULL), buc(NULL), blx(NULL), bux(NULL), aval(NULL), qval(NULL), c(NULL), xx(NULL),
@@ -16,7 +17,7 @@ numqnz(0)
     initializeEnvironment();
 }
 
-MosekSolver::~MosekSolver()
+Solver::~Solver()
 {
     MSK_deleteenv(&env);
 }
@@ -26,7 +27,7 @@ static void MSKAPI printError(void *handle, MSKCONST char err[])
     printf("%s", err);
 }
 
-void MosekSolver::initializeEnvironment()
+void Solver::initializeEnvironment()
 {
     r = MSK_makeenv(&env, NULL);
     if (r == MSK_RES_OK) {
@@ -35,7 +36,7 @@ void MosekSolver::initializeEnvironment()
     }
 }
 
-bool MosekSolver::createTask(MSKtask_t& task)
+bool Solver::createTask(MSKtask_t& task)
 {
     r = MSK_maketask(env, constraints, variables, &task);
     if (r != MSK_RES_OK) return false;
@@ -45,7 +46,7 @@ bool MosekSolver::createTask(MSKtask_t& task)
     return true;
 }
 
-void MosekSolver::allocateMemory()
+void Solver::allocateMemory()
 {
     bkc = new MSKboundkeye[constraints]; blc = new MSKrealt[constraints]; buc = new MSKrealt[constraints];
     bkx = new MSKboundkeye[variables]; blx = new MSKrealt[variables]; bux = new MSKrealt[variables];
@@ -56,7 +57,7 @@ void MosekSolver::allocateMemory()
     xx = new MSKrealt[variables];
 }
 
-bool MosekSolver::initialize(MSKint32t variables_, MSKint32t constraints_,
+bool Solver::initialize(MSKint32t variables_, MSKint32t constraints_,
                              MSKint32t numanz_, MSKint32t numqnz_)
 {
     if (r != MSK_RES_OK) return false;
@@ -145,7 +146,7 @@ static MSKint32t MSKAPI nlgetsp(MSKuserhandle_t nlhandle, MSKint32t *numgrdobjnz
     return MSK_RES_OK;
 }
 
-bool MosekSolver::setSolution()
+bool Solver::setSolution()
 {
     MSKsolstae solsta;
     MSK_getsolsta(task, MSK_SOL_ITR, &solsta);
@@ -162,7 +163,7 @@ bool MosekSolver::setSolution()
     return r == MSK_RES_OK;
 }
 
-bool MosekSolver::solve(ProblemType type)
+bool Solver::solve(ProblemType type)
 {
     // Set input data
     r = MSK_inputdata(task, constraints, variables, constraints, variables, c, 0,
@@ -191,7 +192,7 @@ bool MosekSolver::solve(ProblemType type)
     return setSolution();
 }
 
-void MosekSolver::deallocateMemory()
+void Solver::deallocateMemory()
 {
     delete [] bkc; delete [] blc; delete [] buc;
     delete [] bkx; delete [] blx; delete [] bux;
@@ -200,7 +201,7 @@ void MosekSolver::deallocateMemory()
     delete [] xx;
 }
 
-void MosekSolver::reset()
+void Solver::reset()
 {
     deallocateMemory();
     MSK_deletetask(&task);

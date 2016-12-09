@@ -44,7 +44,7 @@ protected:
     Eigen::VectorXd thetas;
     Eigen::VectorXd lengths;
     Eigen::VectorXd angles;
-    MosekSolver solver;
+    MosekSolver::Solver solver;
 };
 
 #endif
