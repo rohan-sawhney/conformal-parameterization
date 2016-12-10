@@ -23,15 +23,10 @@ protected:
     // compute angles
     bool computeAngles();
     
-    // sets radii based constraints and bounds
-    void setupRadiiOptProblem();
-    
-    // computes radii energy, its gradient and hessian, and their sparsity
-    void computeEnergy(double& energy, const double *rho);
-    void computeGradient(double *gradient, const double *rho);
-    void computeHessian(double *hessian, const double *rho);
-    void buildGradientSparsity(int *idx);
-    void buildHessianSparsity(int *idxi, int *idxj);
+    // computes radii energy, its gradient and hessian for our solver
+    void computeEnergy(double& energy, const Eigen::VectorXd& rho);
+    void computeGradient(Eigen::VectorXd& gradient, const Eigen::VectorXd& rho);
+    void computeHessian(Eigen::SparseMatrix<double>& hessian, const Eigen::VectorXd& rho);
 
     // sets radii
     void setRadii();
@@ -55,7 +50,8 @@ protected:
     Eigen::VectorXd radii;
     Eigen::VectorXi eIntIndices;
     int imaginaryHe;
-    MosekSolver::Solver solver;
+    MosekSolver::Solver mosekSolver;
+    Solver solver;
 };
 
 #endif 

@@ -1,5 +1,4 @@
 #include "CirclePatterns.h"
-#define EPSILON 1e-3
 
 CirclePatterns::CirclePatterns(Mesh& mesh0):
 Parameterization(mesh0),
@@ -7,7 +6,8 @@ angles(mesh.halfEdges.size()),
 thetas(mesh.edges.size()),
 radii(mesh.faces.size()-1),
 eIntIndices(mesh.edges.size()),
-imaginaryHe(0)
+imaginaryHe(0),
+solver((int)mesh.faces.size()-1)
 {
     
 }
@@ -18,9 +18,9 @@ void CirclePatterns::setupAngleOptProblem()
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
         if (!f->isBoundary()) {
             int fIdx = f->index;
-            solver.bkc[fIdx] = MSK_BK_FX;
-            solver.blc[fIdx] = M_PI;
-            solver.buc[fIdx] = M_PI;
+            mosekSolver.bkc[fIdx] = MSK_BK_FX;
+            mosekSolver.blc[fIdx] = M_PI;
+            mosekSolver.buc[fIdx] = M_PI;
         }
     }
     
@@ -29,14 +29,14 @@ void CirclePatterns::setupAngleOptProblem()
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
         int vIdx = v->index + shift;
         if (v->isBoundary()) {
-            solver.bkc[vIdx] = MSK_BK_RA;
-            solver.blc[vIdx] = 0.0;
-            solver.buc[vIdx] = 2*M_PI;
+            mosekSolver.bkc[vIdx] = MSK_BK_RA;
+            mosekSolver.blc[vIdx] = 0.0;
+            mosekSolver.buc[vIdx] = 2*M_PI;
         
         } else {
-            solver.bkc[vIdx] = MSK_BK_FX;
-            solver.blc[vIdx] = 2*M_PI;
-            solver.buc[vIdx] = 2*M_PI;
+            mosekSolver.bkc[vIdx] = MSK_BK_FX;
+            mosekSolver.blc[vIdx] = 2*M_PI;
+            mosekSolver.buc[vIdx] = 2*M_PI;
         }
     }
     
@@ -45,9 +45,9 @@ void CirclePatterns::setupAngleOptProblem()
     for (EdgeCIter e = mesh.edges.begin(); e != mesh.edges.end(); e++) {
         if (!e->isBoundary()) {
             int eIdx = eIntIndices[e->index] + shift;
-            solver.bkc[eIdx] = MSK_BK_RA;
-            solver.blc[eIdx] = EPSILON;
-            solver.buc[eIdx] = M_PI - EPSILON;
+            mosekSolver.bkc[eIdx] = MSK_BK_RA;
+            mosekSolver.blc[eIdx] = EPSILON;
+            mosekSolver.buc[eIdx] = M_PI - EPSILON;
         }
     }
     
@@ -59,44 +59,44 @@ void CirclePatterns::setupAngleOptProblem()
             double angle = he->angle();
             
             // subtract angle from constraints and set linear constraint matrix
-            solver.ptrb[a] = numanz;
+            mosekSolver.ptrb[a] = numanz;
             
             int fIdx = he->face->index;
-            solver.blc[fIdx] -= angle;
-            solver.buc[fIdx] -= angle;
-            solver.asub[numanz] = fIdx;
-            solver.aval[numanz] = 1.0;
+            mosekSolver.blc[fIdx] -= angle;
+            mosekSolver.buc[fIdx] -= angle;
+            mosekSolver.asub[numanz] = fIdx;
+            mosekSolver.aval[numanz] = 1.0;
             numanz++;
             
             int vIdx = he->next->next->vertex->index + (int)(mesh.faces.size() - mesh.boundaries.size());
-            solver.blc[vIdx] -= angle;
-            solver.buc[vIdx] -= angle;
-            solver.asub[numanz] = vIdx;
-            solver.aval[numanz] = 1.0;
+            mosekSolver.blc[vIdx] -= angle;
+            mosekSolver.buc[vIdx] -= angle;
+            mosekSolver.asub[numanz] = vIdx;
+            mosekSolver.aval[numanz] = 1.0;
             numanz++;
             
             if (!he->edge->isBoundary()) {
                 int eIdx = eIntIndices[he->edge->index] +
                            (int)(mesh.faces.size() + mesh.vertices.size() - mesh.boundaries.size());
-                solver.blc[eIdx] -= angle;
-                solver.buc[eIdx] -= angle;
-                solver.asub[numanz] = eIdx;
-                solver.aval[numanz] = 1.0;
+                mosekSolver.blc[eIdx] -= angle;
+                mosekSolver.buc[eIdx] -= angle;
+                mosekSolver.asub[numanz] = eIdx;
+                mosekSolver.aval[numanz] = 1.0;
                 numanz++;
             }
             
-            solver.ptre[a] = numanz;
+            mosekSolver.ptre[a] = numanz;
             
             // ensure positive and non reflex angles
-            solver.bkx[a] = MSK_BK_RA;
-            solver.blx[a] = EPSILON - angle;
-            solver.bux[a] = (M_PI - EPSILON) - angle;
+            mosekSolver.bkx[a] = MSK_BK_RA;
+            mosekSolver.blx[a] = EPSILON - angle;
+            mosekSolver.bux[a] = (M_PI - EPSILON) - angle;
             
             // set objective
-            solver.qsubi[a] = a;
-            solver.qsubj[a] = a;
-            solver.qval[a] = 1.0;
-            solver.c[a] = 0.0;
+            mosekSolver.qsubi[a] = a;
+            mosekSolver.qsubj[a] = a;
+            mosekSolver.qval[a] = 1.0;
+            mosekSolver.c[a] = 0.0;
             
             a++;
         }
@@ -108,7 +108,7 @@ void CirclePatterns::setThetas()
     // set opposite angles
     int a = 0;
     for (HalfEdgeCIter he = mesh.halfEdges.begin(); he != mesh.halfEdges.end(); he++) {
-        if (!he->onBoundary) angles[he->index] = he->angle() + solver.xx[a++];
+        if (!he->onBoundary) angles[he->index] = he->angle() + mosekSolver.xx[a++];
         else angles[he->index] = 0.0;
     }
     
@@ -127,46 +127,20 @@ bool CirclePatterns::computeAngles()
     int numanz = 3 * variables - imaginaryHe;
     int numqnz = variables;
     
-    // initialize solver
-    if (!solver.initialize(variables, constraints, numanz, numqnz)) return false;
+    // initialize mosekSolver
+    if (!mosekSolver.initialize(variables, constraints, numanz, numqnz)) return false;
     
     // setup optimization problem
     setupAngleOptProblem();
     
     // solve
-    bool success = solver.solve(MosekSolver::QO);
+    bool success = mosekSolver.solve(MosekSolver::QO);
     if (success) setThetas();
     
-    // reset solver
-    solver.reset();
+    // reset mosekSolver
+    mosekSolver.reset();
     
     return success;
-}
-
-void CirclePatterns::setupRadiiOptProblem()
-{
-    // set constraint: sum of rhos over all faces equals 0
-    solver.bkc[0] = MSK_BK_FX;
-    solver.blc[0] = 0.0;
-    solver.buc[0] = 0.0;
-    
-    // set linear constraint vector and bounds
-    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        if (!f->isBoundary()) {
-            int fIdx = f->index;
-            
-            solver.ptrb[fIdx] = fIdx;
-            solver.ptre[fIdx] = fIdx+1;
-            solver.asub[fIdx] = 0;
-            solver.aval[fIdx] = 1.0;
-            
-            solver.bkx[fIdx] = MSK_BK_FR;
-            solver.blx[fIdx] = -MSK_INFINITY;
-            solver.bux[fIdx] = MSK_INFINITY;
-            
-            solver.c[fIdx] = 1.0;
-        }
-    }
 }
 
 double ImLi2Sum(double dp, double theta)
@@ -182,7 +156,7 @@ double fe(double dp, double theta)
     return atan2(sin(theta), exp(dp) - cos(theta));
 }
 
-void CirclePatterns::computeEnergy(double& energy, const double *rho)
+void CirclePatterns::computeEnergy(double& energy, const Eigen::VectorXd& rho)
 {
     energy = 0.0;
     
@@ -206,7 +180,7 @@ void CirclePatterns::computeEnergy(double& energy, const double *rho)
     }
 }
 
-void CirclePatterns::computeGradient(double *gradient, const double *rho)
+void CirclePatterns::computeGradient(Eigen::VectorXd& gradient, const Eigen::VectorXd& rho)
 {
     // loop over faces
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
@@ -233,105 +207,49 @@ void CirclePatterns::computeGradient(double *gradient, const double *rho)
     }
 }
 
-void CirclePatterns::computeHessian(double *hessian, const double *rho)
+void CirclePatterns::computeHessian(Eigen::SparseMatrix<double>& hessian, const Eigen::VectorXd& rho)
 {
-    // sum over faces
-    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        if (!f->isBoundary()) hessian[f->index] = 0.0;
-    }
+    std::vector<Eigen::Triplet<double>> HTriplets;
     
-    // sum over edges
-    int shift = (int)(mesh.faces.size() - mesh.boundaries.size());
     for (EdgeCIter e = mesh.edges.begin(); e != mesh.edges.end(); e++) {
         if (!e->isBoundary()) {
             int fk = e->he->face->index;
             int fl = e->he->flip->face->index;
             
-            // mosek requires only the upper (or lower triangular) part of the hessian
             if (fk < fl) std::swap(fk, fl);
             
-            double hessval = sin(thetas[e->index]) / (cosh(rho[fk] - rho[fl]) - cos(thetas[e->index]));
-            hessian[fk] += hessval;
-            hessian[fl] += hessval; // cosh is symmetric
-            hessian[shift + eIntIndices[e->index]] = -hessval;
-        }
-    }
-}
-
-void CirclePatterns::buildGradientSparsity(int *idx)
-{
-    // set indices for nonzero elements
-    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        if (!f->isBoundary()) {
-            int fIdx = f->index;
-            idx[fIdx] = fIdx;
-        }
-    }
-}
-
-void CirclePatterns::buildHessianSparsity(int *idxi, int *idxj)
-{
-    // set indices for nonzero diagonal elements
-    for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        if (!f->isBoundary()) {
-            int fIdx = f->index;
-            idxi[fIdx] = fIdx;
-            idxj[fIdx] = fIdx;
+            double hessval = sin(thetas[e->index]) / (cosh(rho(fk) - rho(fl)) - cos(thetas[e->index]));
+            HTriplets.push_back(Eigen::Triplet<double>(fk, fk, hessval));
+            HTriplets.push_back(Eigen::Triplet<double>(fl, fl, hessval));
+            HTriplets.push_back(Eigen::Triplet<double>(fk, fl, -hessval));
+            HTriplets.push_back(Eigen::Triplet<double>(fl, fk, -hessval));
         }
     }
     
-    // set indices for nonzero nondiagonal elements
-    int shift = (int)(mesh.faces.size() - mesh.boundaries.size());
-    for (EdgeCIter e = mesh.edges.begin(); e != mesh.edges.end(); e++) {
-        if (!e->isBoundary()) {
-            int fk = e->he->face->index;
-            int fl = e->he->flip->face->index;
-            
-            // mosek requires only the upper (or lower triangular) part of the hessian
-            if (fk < fl) std::swap(fk, fl);
-            
-            idxi[shift + eIntIndices[e->index]] = fk;
-            idxj[shift + eIntIndices[e->index]] = fl;
-        }
-    }
+    hessian.setFromTriplets(HTriplets.begin(), HTriplets.end());
 }
 
 void CirclePatterns::setRadii()
 {
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
-        if (!f->isBoundary()) radii[f->index] = exp(solver.xx[f->index]);
+        if (!f->isBoundary()) radii[f->index] = exp(solver.x[f->index]);
     }
 }
 
 bool CirclePatterns::computeRadii()
 {
-    int variables = (int)(mesh.faces.size() - mesh.boundaries.size());
-    int constraints = 1;
-    int numanz = variables;
-    
-    // initialize solver
-    if (!solver.initialize(variables, constraints, numanz)) return false;
-    
-    // setup optimization problem
-    setupRadiiOptProblem();
-    
-    MosekSolver::MeshHandle handle((int)(mesh.faces.size()-mesh.boundaries.size()),
-                                   (int)(mesh.faces.size()+mesh.edges.size()-imaginaryHe-mesh.boundaries.size()));
+    MeshHandle handle;
     handle.computeEnergy = std::bind(&CirclePatterns::computeEnergy, this, _1, _2);
     handle.computeGradient = std::bind(&CirclePatterns::computeGradient, this, _1, _2);
     handle.computeHessian = std::bind(&CirclePatterns::computeHessian, this, _1, _2);
-    handle.buildGradientSparsity = std::bind(&CirclePatterns::buildGradientSparsity, this, _1);
-    handle.buildHessianSparsity = std::bind(&CirclePatterns::buildHessianSparsity, this, _1, _2);
+    
     solver.handle = &handle;
+    solver.gradientDescent();
     
-    // solve
-    bool success = solver.solve(MosekSolver::GECO);
-    if (success) setRadii();
+    // set radii
+    setRadii();
     
-    // reset solver
-    solver.reset();
-    
-    return success;
+    return true;
 }
 
 void CirclePatterns::computeAnglesAndEdgeLengths(Eigen::VectorXd& lengths)

@@ -2,8 +2,9 @@
 #define UTILS_H
 
 #include <math.h> 
+#include "Solver.h"
 #include "MosekSolver.h"
-#include <dlib/optimization.h>
+#define EPSILON 1e-3
 
 // Implementation of Clausen integral
 inline double Cl2(double x)

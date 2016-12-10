@@ -119,7 +119,7 @@ void Cetm::computeEnergy(double& energy, const double *u)
             i = 0;
             he = f->he;
             do {
-                if (l != -1) angles[he->index] = l == i ? M_PI : 0.0;
+                if (l != -1) angles[he->index] = l == i ? M_PI - EPSILON : EPSILON/2.0;
                 energy += 0.5*angles[he->index]*lambda(al[i]) + lobachevsky(angles[he->index]);
                 i++;
                 
@@ -170,8 +170,10 @@ void Cetm::computeHessian(double *hessian, const double *u)
             // mosek requires only the upper (or lower triangular) part of the hessian
             if (i > j) {
                 // compute cotan weight
-                double w = (!he->onBoundary && validAngle(angles[he->index])) ? cot(angles[he->index]) : 0.0;
-                w += (!he->flip->onBoundary && validAngle(angles[he->flip->index])) ? cot(angles[he->flip->index]) : 0.0;
+                double w = (!he->onBoundary && validAngle(angles[he->index])) ?
+                            cot(angles[he->index]) : 0.0;
+                w += (!he->flip->onBoundary && validAngle(angles[he->flip->index])) ?
+                      cot(angles[he->flip->index]) : 0.0;
                 w /= 4.0;
                 
                 hessian[i] += w;
@@ -264,7 +266,7 @@ void Cetm::setEdgeLengthsAndAngles()
             i = 0;
             he = f->he;
             do {
-                if (l != -1) angles[he->index] = l == i ? M_PI : 0.0;
+                if (l != -1) angles[he->index] = l == i ? M_PI - EPSILON : EPSILON/2.0;
                 i++;
                 
                 he = he->next;
