@@ -30,6 +30,9 @@ public:
     // newton
     void newton();
     
+    // trust region
+    void trustRegion();
+    
     // lbfgs
     void lbfgs(int m = 10);
     

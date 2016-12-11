@@ -1,4 +1,5 @@
 #include "Solver.h"
+#include "MosekSolver.h"
 #include <deque>
 #include <eigen/SparseCholesky>
 #define beta 0.9
@@ -55,7 +56,9 @@ void Solver::gradientDescent()
     std::cout << "f: " << f << " k: " << k << std::endl;
 }
 
-void solve(Eigen::VectorXd& x, const Eigen::VectorXd& b, const Eigen::SparseMatrix<double>& A)
+void solvePositiveDefinite(Eigen::VectorXd& x,
+                           const Eigen::VectorXd& b,
+                           const Eigen::SparseMatrix<double>& A)
 {
     Eigen::SimplicialCholesky<Eigen::SparseMatrix<double>> solver(A);
     x = solver.solve(b);
@@ -78,7 +81,7 @@ void Solver::newton()
         handle->computeHessian(H, x);
 
         Eigen::VectorXd p;
-        solve(p, g, H);
+        solvePositiveDefinite(p, g, H);
 
         // compute step size
         double t = 1.0;
@@ -100,6 +103,85 @@ void Solver::newton()
     std::cout << "f: " << f << " k: " << k << std::endl;
 }
 
+bool solveTrustRegionQP(Eigen::VectorXd& x,
+                        const Eigen::VectorXd& c,
+                        const Eigen::SparseMatrix<double>& Q,
+                        const double r)
+{
+    int n = (int)c.size();
+    int variables = n;
+    int constraints = 1;
+    int numanz = 0;
+    int numqnz = (Q.nonZeros() - n)/2 + n;
+    
+    // initialize mosekSolver
+    MosekSolver::Solver mosekSolver;
+    if (!mosekSolver.initialize(variables, constraints, numanz, numqnz)) return false;
+    
+    // setup problem
+    mosekSolver.bkc[0] = MSK_BK_RA;
+    mosekSolver.blc[0] = 0.0;
+    mosekSolver.buc[0] = r;
+    
+    // TODO
+    for (int i = 0; i < n; i++) {
+        mosekSolver.ptrb[i] = i;
+        mosekSolver.ptre[i] = i+1;
+        mosekSolver.asub[i] = 0;
+        mosekSolver.aval[i] = 1.0;
+        
+        mosekSolver.bkx[i] = MSK_BK_FR;
+        mosekSolver.blx[i] = -MSK_INFINITY;
+        mosekSolver.bux[i] = MSK_INFINITY;
+        
+        mosekSolver.c[i] = c[i];
+    }
+    
+    return true;
+}
+
+void Solver::trustRegion()
+{
+    int k = 0;
+    double f = 0.0;
+    double r = 10.0;
+    x = Eigen::VectorXd::Zero(n);
+    handle->computeEnergy(f, x);
+    
+    while (true) {
+        // compute update length and direction
+        Eigen::VectorXd g(n);
+        handle->computeGradient(g, x);
+        
+        Eigen::SparseMatrix<double> H(n, n);
+        handle->computeHessian(H, x);
+        
+        Eigen::VectorXd p;
+        if (!solveTrustRegionQP(p, g, H, r)) {
+            std::cout << "Unable to solve QP" << std::endl;
+            break;
+        }
+        
+        // compute rho
+        double fp = f;
+        handle->computeEnergy(f, x + p);
+        double predicted = -p.dot(H*p) - g.dot(p);
+        double actual = fp - f;
+        double rho = actual/predicted;
+        
+        // update
+        if (rho > 0) x += p;
+        if (rho < 0.25) r *= 0.25;
+        else if (rho > 0.75 && fabs(p.norm() - r) <= EPSILON) r = std::min(1000.0, 2*r);
+        k++;
+        
+        // check termination condition
+        if (fabs(f - fp) < EPSILON || k > MAX_ITERS) break;
+    }
+    
+    std::cout << "f: " << f << " k: " << k << std::endl;
+}
+
 void Solver::lbfgs(int m)
 {
     int k = 0;
@@ -114,7 +196,7 @@ void Solver::lbfgs(int m)
     const double alpha = 1e-4;
     while (true) {
         // compute update direction
-        const int l = std::min(k, m);
+        int l = std::min(k, m);
         Eigen::VectorXd q = -g;
         
         Eigen::VectorXd a(l);
