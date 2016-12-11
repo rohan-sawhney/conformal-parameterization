@@ -3,7 +3,6 @@
 
 #include <mosek/h/mosek.h>
 #include <functional>
-using namespace std::placeholders;
 
 namespace MosekSolver {
     struct MeshHandle {

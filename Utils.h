@@ -3,7 +3,6 @@
 
 #include <math.h> 
 #include "Solver.h"
-#include "MosekSolver.h"
 #define EPSILON 1e-3
 
 // Implementation of Clausen integral

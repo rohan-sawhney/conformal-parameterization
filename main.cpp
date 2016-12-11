@@ -444,10 +444,6 @@ void printUsage(char *programName)
 
 int main(int argc, char** argv)
 {
-    // TODOs:
-    // 1) Complete Cetm - specify natural boundary conditions
-    // 2) Implement Cetm & Circle Patterns with LBFGS and trust method
-    
     // parse
     bool runTest = false;
     bool objPathSpecified = false;

@@ -2,6 +2,7 @@
 #define SOLVER_H
 
 #include "Types.h"
+using namespace std::placeholders;
 
 struct MeshHandle {
     // typedefs
@@ -25,9 +26,6 @@ public:
     
     // gradient descent
     void gradientDescent();
-    
-    // coordinate descent
-    void coordinateDescent();
     
     // newton
     void newton();

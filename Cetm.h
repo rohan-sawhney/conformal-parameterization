@@ -17,15 +17,10 @@ protected:
     // sets default theta values
     void setDefaultThetas();
     
-    // sets scale factor based constraints and bounds
-    void setupOptProblem();
-    
-    // computes energy, its gradient and hessian, and their sparsity
-    void computeEnergy(double& energy, const double *u);
-    void computeGradient(double *gradient, const double *u);
-    void computeHessian(double *hessian, const double *u);
-    void buildGradientSparsity(int *idx);
-    void buildHessianSparsity(int *idxi, int *idxj);
+    // computes energy, gradient and hessian
+    void computeEnergy(double& energy, const Eigen::VectorXd& u);
+    void computeGradient(Eigen::VectorXd& gradient, const Eigen::VectorXd& u);
+    void computeHessian(Eigen::SparseMatrix<double>& hessian, const Eigen::VectorXd& u);
     
     // sets edge lengths
     void setEdgeLengthsAndAngles();
@@ -44,7 +39,7 @@ protected:
     Eigen::VectorXd thetas;
     Eigen::VectorXd lengths;
     Eigen::VectorXd angles;
-    MosekSolver::Solver solver;
+    Solver solver;
 };
 
 #endif

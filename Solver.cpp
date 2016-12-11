@@ -12,13 +12,13 @@ n(n0)
 
 void Solver::gradientDescent()
 {
+    int k = 1;
     double f = 0.0;
     x = Eigen::VectorXd::Zero(n);
     handle->computeEnergy(f, x);
     Eigen::VectorXd xp = Eigen::VectorXd::Zero(n);
     Eigen::VectorXd v = Eigen::VectorXd::Zero(n);
 
-    int k = 1;
     while (true) {
         // compute momentum term
         v = x;
@@ -50,11 +50,8 @@ void Solver::gradientDescent()
         // check termination condition
         if (fabs(f - fp) < EPSILON) break;
     }
-}
 
-void Solver::coordinateDescent()
-{
-    // TODO
+    std::cout << "f: " << f << " k: " << k << std::endl;
 }
 
 void solve(Eigen::VectorXd& x, const Eigen::VectorXd& b, const Eigen::SparseMatrix<double>& A)
@@ -65,6 +62,7 @@ void solve(Eigen::VectorXd& x, const Eigen::VectorXd& b, const Eigen::SparseMatr
 
 void Solver::newton()
 {
+    int k = 0;
     double f = 0.0;
     x = Eigen::VectorXd::Zero(n);
     handle->computeEnergy(f, x);
@@ -92,10 +90,13 @@ void Solver::newton()
 
         // update
         x -= t*p;
+        k++;
 
         // check termination condition
         if (fabs(f - fp) < EPSILON) break;
     }
+    
+    std::cout << "f: " << f << " k: " << k << std::endl;
 }
 
 void Solver::lbfgs(int m)
@@ -121,9 +122,8 @@ void Solver::lbfgs(int m)
             q -= a(i)*y[i];
         }
         
-        Eigen::SparseMatrix<double> H(n, n); H.setIdentity();
-        if (l > 0) H *= y[l-1].dot(s[l-1]) / y[l-1].dot(y[l-1]);
-        Eigen::VectorXd p = H*q;
+        Eigen::VectorXd p = q;
+        if (l > 0) p *= y[l-1].dot(s[l-1]) / y[l-1].dot(y[l-1]);
         
         for (int i = 0; i < l; i++) {
             double b = y[i].dot(p) / y[i].dot(s[i]);
@@ -144,17 +144,19 @@ void Solver::lbfgs(int m)
         Eigen::VectorXd gp = g;
         x += t*p;
         handle->computeGradient(g, x);
+        k++;
         
         // update history
-        if (k >= m) {
+        if (k > m) {
             s.pop_front();
             y.pop_front();
         }
         s.push_back(x - xp);
         y.push_back(g - gp);
-        k++;
         
         // check termination condition
         if (fabs(f - fp) < EPSILON) break;
     }
+    
+    std::cout << "f: " << f << " k: " << k << std::endl;
 }

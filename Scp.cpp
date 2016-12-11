@@ -1,7 +1,6 @@
 #include "Scp.h"
 #include <eigen/SparseCholesky>
 #define MAX_ITER 32
-#define EPSILON 1e-8
 
 Scp::Scp(Mesh& mesh0):
 Parameterization(mesh0)
@@ -127,7 +126,7 @@ void Scp::parameterize()
     // build conformal energy
     Eigen::SparseMatrix<std::complex<double>> E(v, v);
     buildConformalEnergy(E);
-    E += std::complex<double>(EPSILON) * B;
+    E += std::complex<double>(1e-8) * B;
     
     // find eigenvector corresponding to smallest eigenvalue
     Eigen::VectorXcd z = Eigen::VectorXcd::Random(v);

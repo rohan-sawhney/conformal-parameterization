@@ -5,7 +5,8 @@ Cetm::Cetm(Mesh& mesh0):
 Parameterization(mesh0),
 thetas(mesh.vertices.size()),
 lengths(mesh.edges.size()),
-angles(mesh.halfEdges.size())
+angles(mesh.halfEdges.size()),
+solver((int)mesh.vertices.size())
 {
     
 }
@@ -22,30 +23,6 @@ void Cetm::setDefaultThetas()
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
         if (v->isBoundary()) thetas[v->index] = angleSum;
         else thetas[v->index] = 2*M_PI;
-    }
-}
-
-void Cetm::setupOptProblem()
-{
-    // set constraint: sum of us over all vertices equals 0
-    solver.bkc[0] = MSK_BK_FX;
-    solver.blc[0] = 0.0;
-    solver.buc[0] = 0.0;
-    
-    // set linear constraint vector and bounds
-    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        int vIdx = v->index;
-        
-        solver.ptrb[vIdx] = vIdx;
-        solver.ptre[vIdx] = vIdx+1;
-        solver.asub[vIdx] = 0;
-        solver.aval[vIdx] = 1.0;
-        
-        solver.bkx[vIdx] = MSK_BK_FR;
-        solver.blx[vIdx] = -MSK_INFINITY;
-        solver.bux[vIdx] = MSK_INFINITY;
-        
-        solver.c[vIdx] = 1.0;
     }
 }
 
@@ -69,7 +46,7 @@ double lobachevsky(double a)
     return Cl2(2*a)/2;
 }
 
-void Cetm::computeEnergy(double& energy, const double *u)
+void Cetm::computeEnergy(double& energy, const Eigen::VectorXd& u)
 {
     energy = 0.0;
     
@@ -134,7 +111,7 @@ void Cetm::computeEnergy(double& energy, const double *u)
     }
 }
 
-void Cetm::computeGradient(double *gradient, const double *u)
+void Cetm::computeGradient(Eigen::VectorXd& gradient, const Eigen::VectorXd& u)
 {
     // loop over vertices
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
@@ -151,79 +128,33 @@ void Cetm::computeGradient(double *gradient, const double *u)
     }
 }
 
-void Cetm::computeHessian(double *hessian, const double *u)
+void Cetm::computeHessian(Eigen::SparseMatrix<double>& hessian, const Eigen::VectorXd& u)
 {
-    // add diagonal entries
-    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        hessian[v->index] = 0.0;
-    }
+    std::vector<Eigen::Triplet<double>> HTriplets;
     
-    // add non-diagonal entries
-    int index = (int)mesh.vertices.size();
+    // build dirichlet energy
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        int i = v->index;
         
         HalfEdgeCIter he = v->he;
+        double sumW = 0.0;
         do {
-            int j = he->flip->vertex->index;
+            // (cotA + cotB) / 4
+            double w = (!he->onBoundary && validAngle(angles[he->index])) ?
+                        cot(angles[he->index]) : 0.0;
+            w += (!he->flip->onBoundary && validAngle(angles[he->flip->index])) ?
+                  cot(angles[he->flip->index]) : 0.0;
+            w /= 4.0;
+            sumW += w;
             
-            // mosek requires only the upper (or lower triangular) part of the hessian
-            if (i > j) {
-                // compute cotan weight
-                double w = (!he->onBoundary && validAngle(angles[he->index])) ?
-                            cot(angles[he->index]) : 0.0;
-                w += (!he->flip->onBoundary && validAngle(angles[he->flip->index])) ?
-                      cot(angles[he->flip->index]) : 0.0;
-                w /= 4.0;
-                
-                hessian[i] += w;
-                hessian[j] += w;
-                hessian[index] = -w;
-                index++;
-            }
+            HTriplets.push_back(Eigen::Triplet<double>(v->index, he->flip->vertex->index, -w));
             
             he = he->flip->next;
         } while (he != v->he);
-    }
-}
-
-void Cetm::buildGradientSparsity(int *idx)
-{
-    // set indices for nonzero elements
-    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        int vIdx = v->index;
-        idx[vIdx] = vIdx;
-    }
-}
-
-void Cetm::buildHessianSparsity(int *idxi, int *idxj)
-{
-    // set indices for nonzero diagonal elements
-    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        int i = v->index;
-        idxi[i] = i;
-        idxj[i] = i;
+        
+        HTriplets.push_back(Eigen::Triplet<double>(v->index, v->index, sumW + 1e-8));
     }
     
-    // set indices for nonzero nondiagonal elements
-    int index = (int)mesh.vertices.size();
-    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        int i = v->index;
-        
-        HalfEdgeCIter he = v->he;
-        do {
-            int j = he->flip->vertex->index;
-            
-            // mosek requires only the upper (or lower triangular) part of the hessian
-            if (i > j) {
-                idxi[index] = i;
-                idxj[index] = j;
-                index++;
-            }
-
-            he = he->flip->next;
-        } while (he != v->he);
-    }
+    hessian.setFromTriplets(HTriplets.begin(), HTriplets.end());
 }
 
 void Cetm::setEdgeLengthsAndAngles()
@@ -231,8 +162,8 @@ void Cetm::setEdgeLengthsAndAngles()
     // set edge lengths
     for (EdgeCIter e = mesh.edges.begin(); e != mesh.edges.end(); e++) {
         HalfEdgeCIter he = e->he;
-        lengths[e->index] = e->length() * exp(0.5*(solver.xx[he->vertex->index] +
-                                                   solver.xx[he->flip->vertex->index]));
+        lengths[e->index] = e->length() * exp(0.5*(solver.x[he->vertex->index] +
+                                                   solver.x[he->flip->vertex->index]));
     }
     
     // set angles
@@ -277,32 +208,18 @@ void Cetm::setEdgeLengthsAndAngles()
 
 bool Cetm::computeScaleFactors()
 {
-    int variables = (int)mesh.vertices.size();
-    int constraints = 1;
-    int numanz = variables;
-    
-    // initialize solver
-    if (!solver.initialize(variables, constraints, numanz)) return false;
-    
-    // setup optimization problem
-    setupOptProblem();
-    
-    MosekSolver::MeshHandle handle((int)mesh.vertices.size(), (int)(mesh.vertices.size() + mesh.edges.size()));
+    MeshHandle handle;
     handle.computeEnergy = std::bind(&Cetm::computeEnergy, this, _1, _2);
     handle.computeGradient = std::bind(&Cetm::computeGradient, this, _1, _2);
     handle.computeHessian = std::bind(&Cetm::computeHessian, this, _1, _2);
-    handle.buildGradientSparsity = std::bind(&Cetm::buildGradientSparsity, this, _1);
-    handle.buildHessianSparsity = std::bind(&Cetm::buildHessianSparsity, this, _1, _2);
+    
     solver.handle = &handle;
+    solver.newton();
     
-    // solve
-    bool success = solver.solve(MosekSolver::GECO);
-    if (success) setEdgeLengthsAndAngles();
+    // set edge lengths and angles
+    setEdgeLengthsAndAngles();
     
-    // reset solver
-    solver.reset();
-    
-    return success;
+    return true;
 }
 
 void Cetm::performFaceLayout(HalfEdgeCIter he, const Eigen::Vector2d& dir,

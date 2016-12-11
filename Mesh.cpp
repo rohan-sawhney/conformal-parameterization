@@ -60,6 +60,7 @@ double Mesh::parameterize(int mode)
     double qcError = param->computeQcError();
     delete param;
     
+    std::cout << "distortion: " << qcError << std::endl;
     return qcError;
 }
 

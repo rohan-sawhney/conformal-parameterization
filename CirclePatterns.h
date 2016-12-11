@@ -3,6 +3,7 @@
 
 #include "Parameterization.h"
 #include "Utils.h"
+#include "MosekSolver.h"
 #include <stack>
 
 class CirclePatterns: public Parameterization {
@@ -23,7 +24,7 @@ protected:
     // compute angles
     bool computeAngles();
     
-    // computes radii energy, its gradient and hessian for our solver
+    // computes energy, gradient and hessian
     void computeEnergy(double& energy, const Eigen::VectorXd& rho);
     void computeGradient(Eigen::VectorXd& gradient, const Eigen::VectorXd& rho);
     void computeHessian(Eigen::SparseMatrix<double>& hessian, const Eigen::VectorXd& rho);

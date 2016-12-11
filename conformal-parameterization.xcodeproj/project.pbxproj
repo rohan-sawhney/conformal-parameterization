@@ -167,12 +167,12 @@
 			isa = PBXGroup;
 			children = (
 				32B47E001DC2A72200BC7642 /* main.cpp */,
-				32C4D13F1DFB6BC9001C1F49 /* Solver.h */,
 				32C4D13E1DFB6BC9001C1F49 /* Solver.cpp */,
-				3231FA221DC5868B00BCE60F /* MosekSolver.h */,
+				32C4D13F1DFB6BC9001C1F49 /* Solver.h */,
 				3231FA231DC5869100BCE60F /* MosekSolver.cpp */,
-				3242E3091DF0B7B500CD8BCA /* Subdivision.h */,
+				3231FA221DC5868B00BCE60F /* MosekSolver.h */,
 				3242E3081DF0B7B500CD8BCA /* Subdivision.cpp */,
+				3242E3091DF0B7B500CD8BCA /* Subdivision.h */,
 				3231FA1B1DC583B300BCE60F /* Parameterization */,
 				3231FA1A1DC583A200BCE60F /* Core */,
 				3231FA191DC5838D00BCE60F /* Rendering */,
