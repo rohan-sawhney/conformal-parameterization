@@ -2,7 +2,8 @@
 #include <deque>
 #include <eigen/SparseCholesky>
 #define beta 0.9
-#define EPSILON 1e-9
+#define EPSILON 1e-10
+#define MAX_ITERS 1e5
 
 Solver::Solver(int n0):
 n(n0)
@@ -48,7 +49,7 @@ void Solver::gradientDescent()
         k++;
         
         // check termination condition
-        if (fabs(f - fp) < EPSILON) break;
+        if (fabs(f - fp) < EPSILON || k > MAX_ITERS) break;
     }
 
     std::cout << "f: " << f << " k: " << k << std::endl;
@@ -93,7 +94,7 @@ void Solver::newton()
         k++;
 
         // check termination condition
-        if (fabs(f - fp) < EPSILON) break;
+        if (fabs(f - fp) < EPSILON || k > MAX_ITERS) break;
     }
     
     std::cout << "f: " << f << " k: " << k << std::endl;
@@ -155,7 +156,7 @@ void Solver::lbfgs(int m)
         y.push_back(g - gp);
         
         // check termination condition
-        if (fabs(f - fp) < EPSILON) break;
+        if (fabs(f - fp) < EPSILON || k > MAX_ITERS) break;
     }
     
     std::cout << "f: " << f << " k: " << k << std::endl;
