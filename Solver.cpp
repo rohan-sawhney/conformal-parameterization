@@ -1,8 +1,8 @@
 #include "Solver.h"
+#include <deque>
 #include <eigen/SparseCholesky>
-#define alpha 0.5
 #define beta 0.9
-#define EPSILON 1e-7
+#define EPSILON 1e-9
 
 Solver::Solver(int n0):
 n(n0)
@@ -14,8 +14,9 @@ void Solver::gradientDescent()
 {
     double f = 0.0;
     x = Eigen::VectorXd::Zero(n);
-    Eigen::VectorXd xp = x, v = x;
     handle->computeEnergy(f, x);
+    Eigen::VectorXd xp = Eigen::VectorXd::Zero(n);
+    Eigen::VectorXd v = Eigen::VectorXd::Zero(n);
 
     int k = 1;
     while (true) {
@@ -63,11 +64,12 @@ void solve(Eigen::VectorXd& x, const Eigen::VectorXd& b, const Eigen::SparseMatr
 }
 
 void Solver::newton()
-{   
+{
     double f = 0.0;
     x = Eigen::VectorXd::Zero(n);
     handle->computeEnergy(f, x);
 
+    const double alpha = 0.5;
     while (true) {
         // compute update direction
         Eigen::VectorXd g(n);
@@ -96,7 +98,63 @@ void Solver::newton()
     }
 }
 
-void Solver::lbfgs()
+void Solver::lbfgs(int m)
 {
-    // TODO
+    int k = 0;
+    double f = 0.0;
+    x = Eigen::VectorXd::Zero(n);
+    handle->computeEnergy(f, x);
+    Eigen::VectorXd g(n);
+    handle->computeGradient(g, x);
+    std::deque<Eigen::VectorXd> s;
+    std::deque<Eigen::VectorXd> y;
+    
+    const double alpha = 1e-4;
+    while (true) {
+        // compute update direction
+        const int l = std::min(k, m);
+        Eigen::VectorXd q = -g;
+        
+        Eigen::VectorXd a(l);
+        for (int i = l-1; i >= 0; i--) {
+            a(i) = s[i].dot(q) / y[i].dot(s[i]);
+            q -= a(i)*y[i];
+        }
+        
+        Eigen::SparseMatrix<double> H(n, n); H.setIdentity();
+        if (l > 0) H *= y[l-1].dot(s[l-1]) / y[l-1].dot(y[l-1]);
+        Eigen::VectorXd p = H*q;
+        
+        for (int i = 0; i < l; i++) {
+            double b = y[i].dot(p) / y[i].dot(s[i]);
+            p += (a(i) - b)*s[i];
+        }
+        
+        // compute step size
+        double t = 1.0;
+        double fp = f;
+        handle->computeEnergy(f, x + t*p);
+        while (f > fp + alpha*t*g.dot(p)) {
+            t = beta*t;
+            handle->computeEnergy(f, x + t*p);
+        }
+        
+        // update
+        Eigen::VectorXd xp = x;
+        Eigen::VectorXd gp = g;
+        x += t*p;
+        handle->computeGradient(g, x);
+        
+        // update history
+        if (k >= m) {
+            s.pop_front();
+            y.pop_front();
+        }
+        s.push_back(x - xp);
+        y.push_back(g - gp);
+        k++;
+        
+        // check termination condition
+        if (fabs(f - fp) < EPSILON) break;
+    }
 }

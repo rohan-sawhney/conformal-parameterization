@@ -244,7 +244,7 @@ bool CirclePatterns::computeRadii()
     handle.computeHessian = std::bind(&CirclePatterns::computeHessian, this, _1, _2);
     
     solver.handle = &handle;
-    solver.gradientDescent();
+    solver.newton();
     
     // set radii
     setRadii();

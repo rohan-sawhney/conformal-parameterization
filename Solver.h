@@ -33,7 +33,7 @@ public:
     void newton();
     
     // lbfgs
-    void lbfgs();
+    void lbfgs(int m = 10);
     
     // member variables
     MeshHandle *handle;
