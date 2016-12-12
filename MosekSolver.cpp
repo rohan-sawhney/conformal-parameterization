@@ -12,6 +12,7 @@ r(MSK_RES_OK),
 variables(0),
 constraints(0),
 numanz(0),
+numqcnz(0),
 numqnz(0)
 {
     initializeEnvironment();
@@ -52,19 +53,21 @@ void Solver::allocateMemory()
     bkx = new MSKboundkeye[variables]; blx = new MSKrealt[variables]; bux = new MSKrealt[variables];
     ptrb = new MSKint32t[variables]; ptre = new MSKint32t[variables];
     asub = new MSKint32t[numanz]; aval = new MSKrealt[numanz];
+    qcsubi = new MSKint32t[numqcnz]; qcsubj = new MSKint32t[numqcnz]; qcval = new MSKrealt[numqcnz];
     qsubi = new MSKint32t[numqnz]; qsubj = new MSKint32t[numqnz];
     qval = new MSKrealt[numqnz]; c = new MSKrealt[variables],
     xx = new MSKrealt[variables];
 }
 
 bool Solver::initialize(MSKint32t variables_, MSKint32t constraints_,
-                             MSKint32t numanz_, MSKint32t numqnz_)
+                        MSKint32t numanz_, MSKint32t numqcnz_, MSKint32t numqnz_)
 {
     if (r != MSK_RES_OK) return false;
     
     variables = variables_;
     constraints = constraints_;
     numanz = numanz_;
+    numqcnz = numqcnz_;
     numqnz = numqnz_;
     
     if (!createTask(task)) return false;
@@ -173,6 +176,7 @@ bool Solver::solve(ProblemType type)
     switch (type) {
         case QO:
             r = MSK_putqobj(task, numqnz, qsubi, qsubj, qval);
+            if (numqcnz > 0) r = MSK_putqconk(task, 0, numqcnz, qcsubi, qcsubj, qcval);
             break;
 
         case GECO:
@@ -197,6 +201,7 @@ void Solver::deallocateMemory()
     delete [] bkc; delete [] blc; delete [] buc;
     delete [] bkx; delete [] blx; delete [] bux;
     delete [] ptrb; delete [] ptre; delete [] asub; delete [] aval;
+    delete [] qcsubi; delete [] qcsubj; delete [] qcval;
     delete [] qsubi; delete [] qsubj; delete [] qval; delete [] c;
     delete [] xx;
 }

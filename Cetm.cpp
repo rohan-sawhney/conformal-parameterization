@@ -214,7 +214,7 @@ bool Cetm::computeScaleFactors()
     handle.computeHessian = std::bind(&Cetm::computeHessian, this, _1, _2);
     
     solver.handle = &handle;
-    solver.newton();
+    solver.trustRegion();
     
     // set edge lengths and angles
     setEdgeLengthsAndAngles();

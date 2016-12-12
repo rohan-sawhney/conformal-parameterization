@@ -3,7 +3,7 @@
 #include <deque>
 #include <eigen/SparseCholesky>
 #define beta 0.9
-#define EPSILON 1e-10
+#define EPSILON 1e-6
 #define MAX_ITERS 1e5
 
 Solver::Solver(int n0):
@@ -112,32 +112,53 @@ bool solveTrustRegionQP(Eigen::VectorXd& x,
     int variables = n;
     int constraints = 1;
     int numanz = 0;
-    int numqnz = (Q.nonZeros() - n)/2 + n;
+    int numqcnz = n;
+    int numqnz = (Q.nonZeros() + n)/2;
     
     // initialize mosekSolver
     MosekSolver::Solver mosekSolver;
-    if (!mosekSolver.initialize(variables, constraints, numanz, numqnz)) return false;
+    if (!mosekSolver.initialize(variables, constraints, numanz, numqcnz, numqnz)) return false;
     
-    // setup problem
-    mosekSolver.bkc[0] = MSK_BK_RA;
-    mosekSolver.blc[0] = 0.0;
-    mosekSolver.buc[0] = r;
+    // set constraints
+    mosekSolver.bkc[0] = MSK_BK_LO;
+    mosekSolver.blc[0] = -INFINITY;
+    mosekSolver.buc[0] = r*r;
     
-    // TODO
+    int k = 0;
     for (int i = 0; i < n; i++) {
-        mosekSolver.ptrb[i] = i;
-        mosekSolver.ptre[i] = i+1;
-        mosekSolver.asub[i] = 0;
-        mosekSolver.aval[i] = 1.0;
-        
+        // set bounds
         mosekSolver.bkx[i] = MSK_BK_FR;
         mosekSolver.blx[i] = -MSK_INFINITY;
         mosekSolver.bux[i] = MSK_INFINITY;
         
+        // set linear constraint matrix
+        mosekSolver.ptrb[i] = i;
+        mosekSolver.ptre[i] = i;
+        
+        // set quadratic constraint matrix
+        mosekSolver.qcsubi[i] = i;
+        mosekSolver.qcsubj[i] = i;
+        mosekSolver.qcval[i] = 2.0;
+        
+        // set linear objective
         mosekSolver.c[i] = c[i];
+        
+        // set quadratic objective
+        for (Eigen::SparseMatrix<double>::InnerIterator it(Q, i); it; ++it) {
+            if (it.row() >= it.col()) {
+                mosekSolver.qsubi[k] = it.row();
+                mosekSolver.qsubj[k] = it.col();
+                mosekSolver.qval[k] = it.value();
+                k++;
+            }
+        }
     }
     
-    return true;
+    // solve
+    bool success = mosekSolver.solve(MosekSolver::QO);
+    if (success) x = Eigen::Map<Eigen::MatrixXd>(mosekSolver.xx, n, 1);
+    
+    return success;
 }
 
 void Solver::trustRegion()

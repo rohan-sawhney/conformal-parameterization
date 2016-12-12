@@ -128,7 +128,7 @@ bool CirclePatterns::computeAngles()
     int numqnz = variables;
     
     // initialize mosekSolver
-    if (!mosekSolver.initialize(variables, constraints, numanz, numqnz)) return false;
+    if (!mosekSolver.initialize(variables, constraints, numanz, 0, numqnz)) return false;
     
     // setup optimization problem
     setupAngleOptProblem();
@@ -244,7 +244,7 @@ bool CirclePatterns::computeRadii()
     handle.computeHessian = std::bind(&CirclePatterns::computeHessian, this, _1, _2);
     
     solver.handle = &handle;
-    solver.newton();
+    solver.trustRegion();
     
     // set radii
     setRadii();

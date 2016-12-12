@@ -44,7 +44,7 @@ namespace MosekSolver {
         
         // Initialize
         bool initialize(MSKint32t variables_, MSKint32t constraints_,
-                        MSKint32t numanz_, MSKint32t numqnz_ = 0);
+                        MSKint32t numanz_, MSKint32t numqcnz_, MSKint32t numqnz_);
         
         // Solve
         bool solve(ProblemType type);
@@ -54,8 +54,8 @@ namespace MosekSolver {
         
         // Member variables
         MSKboundkeye *bkc, *bkx;
-        MSKint32t *ptrb, *ptre, *asub, *qsubi, *qsubj;
-        MSKrealt *blc, *buc, *blx, *bux, *aval, *qval, *c, *xx;
+        MSKint32t *ptrb, *ptre, *asub, *qcsubi, *qcsubj, *qsubi, *qsubj;
+        MSKrealt *blc, *buc, *blx, *bux, *aval, *qcval, *qval, *c, *xx;
         MeshHandle *handle;
         
     private:
@@ -78,7 +78,7 @@ namespace MosekSolver {
         MSKenv_t env;
         MSKtask_t task;
         MSKrescodee r;
-        MSKint32t variables, constraints, numanz, numqnz;
+        MSKint32t variables, constraints, numanz, numqcnz, numqnz;
     };
 }
 
