@@ -1,13 +1,14 @@
 #include "CirclePatterns.h"
 
-CirclePatterns::CirclePatterns(Mesh& mesh0):
+CirclePatterns::CirclePatterns(Mesh& mesh0, int optScheme0):
 Parameterization(mesh0),
 angles(mesh.halfEdges.size()),
 thetas(mesh.edges.size()),
 radii(mesh.faces.size()-1),
 eIntIndices(mesh.edges.size()),
 imaginaryHe(0),
-solver((int)mesh.faces.size()-1)
+solver((int)mesh.faces.size()-1),
+OptScheme(optScheme0)
 {
     
 }
@@ -219,8 +220,8 @@ void CirclePatterns::computeHessian(Eigen::SparseMatrix<double>& hessian, const 
             if (fk < fl) std::swap(fk, fl);
             
             double hessval = sin(thetas[e->index]) / (cosh(rho(fk) - rho(fl)) - cos(thetas[e->index]));
-            HTriplets.push_back(Eigen::Triplet<double>(fk, fk, hessval));
-            HTriplets.push_back(Eigen::Triplet<double>(fl, fl, hessval));
+            HTriplets.push_back(Eigen::Triplet<double>(fk, fk, hessval + 1e-8));
+            HTriplets.push_back(Eigen::Triplet<double>(fl, fl, hessval + 1e-8));
             HTriplets.push_back(Eigen::Triplet<double>(fk, fl, -hessval));
             HTriplets.push_back(Eigen::Triplet<double>(fl, fk, -hessval));
         }
@@ -244,7 +245,10 @@ bool CirclePatterns::computeRadii()
     handle.computeHessian = std::bind(&CirclePatterns::computeHessian, this, _1, _2);
     
     solver.handle = &handle;
-    solver.trustRegion();
+    if (OptScheme == GRAD_DESCENT) solver.gradientDescent();
+    else if (OptScheme == NEWTON) solver.newton();
+    else if (OptScheme == TRUST_REGION) solver.trustRegion();
+    else solver.lbfgs();
     
     // set radii
     setRadii();

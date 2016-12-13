@@ -1,12 +1,13 @@
 #include "Cetm.h"
 #define cot(x) (tan(M_PI_2 - x))
 
-Cetm::Cetm(Mesh& mesh0):
+Cetm::Cetm(Mesh& mesh0, int optScheme0):
 Parameterization(mesh0),
 thetas(mesh.vertices.size()),
 lengths(mesh.edges.size()),
 angles(mesh.halfEdges.size()),
-solver((int)mesh.vertices.size())
+solver((int)mesh.vertices.size()),
+OptScheme(optScheme0)
 {
     
 }
@@ -214,7 +215,10 @@ bool Cetm::computeScaleFactors()
     handle.computeHessian = std::bind(&Cetm::computeHessian, this, _1, _2);
     
     solver.handle = &handle;
-    solver.trustRegion();
+    if (OptScheme == GRAD_DESCENT) solver.gradientDescent();
+    else if (OptScheme == NEWTON) solver.newton();
+    else if (OptScheme == TRUST_REGION) solver.trustRegion();
+    else solver.lbfgs();
     
     // set edge lengths and angles
     setEdgeLengthsAndAngles();

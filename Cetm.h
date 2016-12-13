@@ -8,7 +8,7 @@
 class Cetm: public Parameterization {
 public:
     // constructor
-    Cetm(Mesh& mesh0);
+    Cetm(Mesh& mesh0, int optScheme0);
 
     // parameterize
     void parameterize() override;
@@ -40,6 +40,7 @@ protected:
     Eigen::VectorXd lengths;
     Eigen::VectorXd angles;
     Solver solver;
+    int OptScheme;
 };
 
 #endif

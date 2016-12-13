@@ -54,24 +54,35 @@ void runConvergenceTest()
     
     Subdivision subdivision;
     if (mesh.read(path)) {
-        for (int i = 0; i < 5; i++) {
-            std::cout << "\nMean Edge Length: " << mesh.meanEdgeLength() << std::endl;
-            std::cout << "Triangles: " << mesh.faces.size() << std::endl;
+        for (int i = 0; i < 4; i++) {
+            std::cout << "\nMean Edge Length: "
+                      << std::setprecision(12) << mesh.meanEdgeLength() << std::endl;
             
             // delaunayize
             mesh.delaunayize();
             
-            // parameterize
-            for (int j = 0; j <= CETM; j++) {
-                clock_t t = clock();
-                double distortion = mesh.parameterize(j);
-                t = clock() - t;
-                
+            // parameterize using different methods and solvers
+            for (int j = SCP; j <= CETM; j++) {
                 std::cout << "Method: " << (j == 0 ? "SCP" :
-                                            (j == 1 ? "LSCM" :
-                                             (j == 2 ? "CIRCLE PATTERNS" : "CETM"))) << std::endl;
-                std::cout << "Conformal Distortion: " << distortion << std::endl;
-                std::cout << "Time: " << ((float)t/CLOCKS_PER_SEC) << "s" << std::endl;
+                                           (j == 1 ? "LSCM" :
+                                           (j == 2 ? "CIRCLE PATTERNS" : "CETM"))) << std::endl;
+                
+                int kmax = 0;
+                if (j >= CIRCLE_PATTERNS) kmax = LBFGS;
+                for (int k = GRAD_DESCENT; k <= LBFGS; k++) {
+                    if (j >= CIRCLE_PATTERNS) {
+                        std::cout << "Solver: " << (k == 0 ? "GRAD DESCENT" :
+                                                   (k == 1 ? "NEWTON" :
+                                                   (k == 2 ? "TRUST REGION" : "LBFGS"))) << std::endl;
+                    }
+                    
+                    clock_t t = clock();
+                    double distortion = mesh.parameterize(j, k);
+                    std::cout << "Runtime: "
+                              << std::setprecision(12) << double(clock() - t)/CLOCKS_PER_SEC << std::endl;
+                    std::cout << "Conformal Distortion: "
+                              << std::setprecision(12) << distortion << std::endl;
+                }
             }
             
             // subdivide

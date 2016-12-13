@@ -48,19 +48,18 @@ bool Mesh::write(const std::string& fileName) const
     return false;
 }
 
-double Mesh::parameterize(int mode)
+double Mesh::parameterize(int mode, int optScheme)
 {
     Parameterization *param;
     if (mode == SCP) param = new Scp(*this);
     else if (mode == LSCM) param = new Lscm(*this);
-    else if (mode == CIRCLE_PATTERNS) param = new CirclePatterns(*this);
-    else if (mode == CETM) param = new Cetm(*this);
+    else if (mode == CIRCLE_PATTERNS) param = new CirclePatterns(*this, optScheme);
+    else if (mode == CETM) param = new Cetm(*this, optScheme);
     
     param->parameterize();
     double qcError = param->computeQcError();
     delete param;
     
-    std::cout << "error: " << qcError << std::endl;
     return qcError;
 }
 

@@ -9,7 +9,7 @@
 class CirclePatterns: public Parameterization {
 public:
     // constructor
-    CirclePatterns(Mesh& mesh0);
+    CirclePatterns(Mesh& mesh0, int optScheme0);
     
     // parameterize
     void parameterize() override;
@@ -53,6 +53,7 @@ protected:
     int imaginaryHe;
     MosekSolver::Solver mosekSolver;
     Solver solver;
+    int OptScheme;
 };
 
 #endif 

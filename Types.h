@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include <iostream>
+#include <iomanip>
 #include "math.h"
 #include <eigen/Core>
 #include <eigen/Dense>
@@ -14,6 +15,10 @@
 #define LSCM 1
 #define CIRCLE_PATTERNS 2
 #define CETM 3
+#define GRAD_DESCENT 0
+#define NEWTON 1
+#define TRUST_REGION 2
+#define LBFGS 3
 
 class Vertex;
 class Edge;

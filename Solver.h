@@ -39,6 +39,7 @@ public:
     // member variables
     MeshHandle *handle;
     Eigen::VectorXd x;
+    std::vector<double> obj;
     
 private:
     // member variable

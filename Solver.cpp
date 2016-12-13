@@ -3,21 +3,22 @@
 #include <deque>
 #include <eigen/SparseCholesky>
 #define beta 0.9
-#define EPSILON 1e-6
-#define MAX_ITERS 1e5
+#define EPSILON 1e-9
+#define MAX_ITERS 10000
 
 Solver::Solver(int n0):
 n(n0)
 {
-
+    obj.reserve(MAX_ITERS);
 }
 
 void Solver::gradientDescent()
 {
     int k = 1;
-    double f = 0.0;
+    double f = 0.0, tp = 1.0;
     x = Eigen::VectorXd::Zero(n);
     handle->computeEnergy(f, x);
+    obj.clear(); obj.push_back(f);
     Eigen::VectorXd xp = Eigen::VectorXd::Zero(n);
     Eigen::VectorXd v = Eigen::VectorXd::Zero(n);
 
@@ -31,7 +32,7 @@ void Solver::gradientDescent()
         handle->computeGradient(g, v);
         
         // compute step size
-        double t = 1.0;
+        double t = tp;
         double fp = 0.0;
         Eigen::VectorXd xn = v - t*g;
         Eigen::VectorXd xnv = xn - v;
@@ -43,17 +44,19 @@ void Solver::gradientDescent()
             xnv = xn - v;
             handle->computeEnergy(f, xn);
         }
-
+    
         // update
+        tp = t;
         xp = x;
-        x = xn;
+        x  = xn;
+        obj.push_back(f);
         k++;
-        
+
         // check termination condition
         if (fabs(f - fp) < EPSILON || k > MAX_ITERS) break;
     }
 
-    std::cout << "f: " << f << " k: " << k << std::endl;
+    std::cout << "Iterations: " << k << std::endl;
 }
 
 void solvePositiveDefinite(Eigen::VectorXd& x,
@@ -70,6 +73,7 @@ void Solver::newton()
     double f = 0.0;
     x = Eigen::VectorXd::Zero(n);
     handle->computeEnergy(f, x);
+    obj.clear(); obj.push_back(f);
 
     const double alpha = 0.5;
     while (true) {
@@ -94,13 +98,14 @@ void Solver::newton()
 
         // update
         x -= t*p;
+        obj.push_back(f);
         k++;
 
         // check termination condition
         if (fabs(f - fp) < EPSILON || k > MAX_ITERS) break;
     }
     
-    std::cout << "f: " << f << " k: " << k << std::endl;
+    std::cout << "Iterations: " << k << std::endl;
 }
 
 bool solveTrustRegionQP(Eigen::VectorXd& x,
@@ -168,6 +173,7 @@ void Solver::trustRegion()
     double r = 10.0;
     x = Eigen::VectorXd::Zero(n);
     handle->computeEnergy(f, x);
+    obj.clear(); obj.push_back(f);
     
     while (true) {
         // compute update length and direction
@@ -194,13 +200,14 @@ void Solver::trustRegion()
         if (rho > 0) x += p;
         if (rho < 0.25) r *= 0.25;
         else if (rho > 0.75 && fabs(p.norm() - r) <= EPSILON) r = std::min(1000.0, 2*r);
+        obj.push_back(f);
         k++;
         
         // check termination condition
         if (fabs(f - fp) < EPSILON || k > MAX_ITERS) break;
     }
     
-    std::cout << "f: " << f << " k: " << k << std::endl;
+    std::cout << "Iterations: " << k << std::endl;
 }
 
 void Solver::lbfgs(int m)
@@ -209,6 +216,7 @@ void Solver::lbfgs(int m)
     double f = 0.0;
     x = Eigen::VectorXd::Zero(n);
     handle->computeEnergy(f, x);
+    obj.clear(); obj.push_back(f);
     Eigen::VectorXd g(n);
     handle->computeGradient(g, x);
     std::deque<Eigen::VectorXd> s;
@@ -248,6 +256,7 @@ void Solver::lbfgs(int m)
         Eigen::VectorXd gp = g;
         x += t*p;
         handle->computeGradient(g, x);
+        obj.push_back(f);
         k++;
         
         // update history
@@ -262,5 +271,5 @@ void Solver::lbfgs(int m)
         if (fabs(f - fp) < EPSILON || k > MAX_ITERS) break;
     }
     
-    std::cout << "f: " << f << " k: " << k << std::endl;
+    std::cout << "Iterations: " << k << std::endl;
 }
