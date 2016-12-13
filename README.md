@@ -1,4 +1,4 @@
 # Conformal Parameterization 
 Implements algorithms for conformal parameterization.
 
-Usage: ./conformal-parameterization OBJ_PATH SHADER_PATH 
+Usage: ./conformal-parameterization -run_test 0/1 -obj_path PATH -shader_path PATH 
