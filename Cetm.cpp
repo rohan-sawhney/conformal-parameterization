@@ -83,7 +83,6 @@ void Cetm::computeEnergy(double& energy, const Eigen::VectorXd& u)
     
     // sum over vertices
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        if (v->isBoundary()) continue;
         int vIdx = index[v->index];
         energy += 0.5*thetas[vIdx]*u[vIdx];
     }
