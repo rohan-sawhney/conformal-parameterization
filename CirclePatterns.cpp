@@ -7,10 +7,9 @@ thetas(mesh.edges.size()),
 radii(mesh.faces.size()-1),
 eIntIndices(mesh.edges.size()),
 imaginaryHe(0),
-solver((int)mesh.faces.size()-1),
 OptScheme(optScheme0)
 {
-    
+    solver.n = (int)mesh.faces.size()-1;
 }
 
 void CirclePatterns::setupAngleOptProblem()

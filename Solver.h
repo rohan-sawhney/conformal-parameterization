@@ -22,7 +22,7 @@ struct MeshHandle {
 class Solver {
 public:
     // constructor
-    Solver(int n0);
+    Solver();
     
     // gradient descent
     void gradientDescent();
@@ -40,9 +40,6 @@ public:
     MeshHandle *handle;
     Eigen::VectorXd x;
     std::vector<double> obj;
-    
-private:
-    // member variable
     int n;
 };
 

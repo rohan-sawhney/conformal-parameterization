@@ -14,8 +14,8 @@ public:
     void parameterize() override;
     
 protected:
-    // sets default theta values
-    void setDefaultThetas();
+    // sets target theta values
+    void setTargetThetas();
     
     // computes energy, gradient and hessian
     void computeEnergy(double& energy, const Eigen::VectorXd& u);
@@ -36,6 +36,7 @@ protected:
     void setUVs();
     
     // member variables
+    std::unordered_map<int, int> index;
     Eigen::VectorXd thetas;
     Eigen::VectorXd lengths;
     Eigen::VectorXd angles;

@@ -6,8 +6,8 @@
 #define EPSILON 1e-9
 #define MAX_ITERS 10000
 
-Solver::Solver(int n0):
-n(n0)
+Solver::Solver():
+n(0)
 {
     obj.reserve(MAX_ITERS);
 }

@@ -69,7 +69,7 @@ void runConvergenceTest()
                 
                 int kmax = 0;
                 if (j >= CIRCLE_PATTERNS) kmax = LBFGS;
-                for (int k = GRAD_DESCENT; k <= LBFGS; k++) {
+                for (int k = 0; k <= kmax; k++) {
                     if (j >= CIRCLE_PATTERNS) {
                         std::cout << "Solver: " << (k == 0 ? "GRAD DESCENT" :
                                                    (k == 1 ? "NEWTON" :

@@ -1,40 +1,25 @@
 #include "Cetm.h"
-#define cot(x) (tan(M_PI_2 - x))
 
 Cetm::Cetm(Mesh& mesh0, int optScheme0):
 Parameterization(mesh0),
 thetas(mesh.vertices.size()),
 lengths(mesh.edges.size()),
 angles(mesh.halfEdges.size()),
-solver((int)mesh.vertices.size()),
 OptScheme(optScheme0)
 {
     
 }
 
-void Cetm::setDefaultThetas()
+void Cetm::setTargetThetas()
 {
-    // set target thetas to a disk
-    int imaginaryHe = 0;
-    for (EdgeCIter e = mesh.edges.begin(); e != mesh.edges.end(); e++) {
-        if (e->isBoundary()) imaginaryHe++;
-    }
-    
-    double angleSum = M_PI * (imaginaryHe - 2) / imaginaryHe;;
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        if (v->isBoundary()) thetas[v->index] = angleSum;
-        else thetas[v->index] = 2*M_PI;
+        if (!v->isBoundary()) thetas[index[v->index]] = 2*M_PI;
     }
 }
 
 double angle(double lij, double ljk, double lki)
 {
-    return acos((lij*lij + lki*lki - ljk*ljk) / (2*lij*lki));
-}
-
-bool validAngle(double a)
-{
-    return a > 0 && a < M_PI;
+    return acos(fmax(-1.0, fmin(1.0, (lij*lij + lki*lki - ljk*ljk) / (2*lij*lki))));
 }
 
 double lambda(double l)
@@ -47,6 +32,13 @@ double lobachevsky(double a)
     return Cl2(2*a)/2;
 }
 
+double cot(double a)
+{
+    // handle degenerate case by clamping (see Section 3.1 of CETM paper)
+    if (a == 0.0 || a == M_PI) return 0.0;
+    return tan(M_PI_2 - a);
+}
+
 void Cetm::computeEnergy(double& energy, const Eigen::VectorXd& u)
 {
     energy = 0.0;
@@ -55,50 +47,33 @@ void Cetm::computeEnergy(double& energy, const Eigen::VectorXd& u)
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
         if (!f->isBoundary()) {
             
-            // add adjacent u values
+            // copy the three u values for triangle f into au
             int i = 0;
-            std::vector<double> au;
+            std::vector<double> au(3);
             HalfEdgeCIter he = f->he;
             do {
-                au.push_back(u[he->vertex->index]);
-                energy -= M_PI_2*au[i];
+                if (he->vertex->isBoundary()) au[i] = 0.0;
+                else au[i] = u[index[he->vertex->index]];
                 i++;
                 
                 he = he->next;
             } while (he != f->he);
             
-            // add adjacent edge lengths
+            // copy the three edge lengths values for triangle f into al
             i = 0;
-            std::vector<double> al;
+            std::vector<double> al(3);
             do {
-                al.push_back(he->edge->length() * exp(0.5*(au[i] + au[(i+1)%3])));
+                al[i] = he->edge->length()*exp(0.5*(au[i] + au[(i+1)%3]));
                 i++;
                 
                 he = he->next;
             } while (he != f->he);
             
-            // add angles
-            i = 0; int l = -1;
-            do {
-                // check if triangle inequality is not satisfied
-                int j = (i+1)%3, k = (i+2)%3;
-                if (al[i] > al[k] + al[j]) {
-                    l = i;
-                    break;
-                }
-                
-                angles[he->index] = angle(al[k], al[i], al[j]);
-                i++;
-                
-                he = he->next;
-            } while (he != f->he);
-            
-            // add f(λij', λjk', λk') term to energy
+            // add f(~λij, ~λjk, ~λk) - π(ui + uj + uk)/2 term to energy
             i = 0;
-            he = f->he;
             do {
-                if (l != -1) angles[he->index] = l == i ? M_PI - EPSILON : EPSILON/2.0;
-                energy += 0.5*angles[he->index]*lambda(al[i]) + lobachevsky(angles[he->index]);
+                angles[he->index] = angle(al[(i+2)%3], al[i], al[(i+1)%3]);
+                energy += 0.5*angles[he->index]*lambda(al[i]) + lobachevsky(angles[he->index]) - M_PI_2*au[i];
                 i++;
                 
                 he = he->next;
@@ -108,7 +83,9 @@ void Cetm::computeEnergy(double& energy, const Eigen::VectorXd& u)
     
     // sum over vertices
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
-        energy += 0.5*thetas[v->index]*u[v->index];
+        if (v->isBoundary()) continue;
+        int vIdx = index[v->index];
+        energy += 0.5*thetas[vIdx]*u[vIdx];
     }
 }
 
@@ -116,6 +93,8 @@ void Cetm::computeGradient(Eigen::VectorXd& gradient, const Eigen::VectorXd& u)
 {
     // loop over vertices
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
+        if (v->isBoundary()) continue;
+        
         // compute angle sum
         double angleSum = 0.0;
         HalfEdgeCIter he = v->he;
@@ -125,7 +104,8 @@ void Cetm::computeGradient(Eigen::VectorXd& gradient, const Eigen::VectorXd& u)
             he = he->flip->next;
         } while (he != v->he);
         
-        gradient[v->index] = 0.5*(thetas[v->index] - angleSum);
+        int vIdx = index[v->index];
+        gradient[vIdx] = 0.5*(thetas[vIdx] - angleSum);
     }
 }
 
@@ -135,24 +115,26 @@ void Cetm::computeHessian(Eigen::SparseMatrix<double>& hessian, const Eigen::Vec
     
     // build dirichlet energy
     for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
+        if (v->isBoundary()) continue;
         
+        int vIdx = index[v->index];
         HalfEdgeCIter he = v->he;
         double sumW = 0.0;
         do {
             // (cotA + cotB) / 4
-            double w = (!he->onBoundary && validAngle(angles[he->index])) ?
-                        cot(angles[he->index]) : 0.0;
-            w += (!he->flip->onBoundary && validAngle(angles[he->flip->index])) ?
-                  cot(angles[he->flip->index]) : 0.0;
-            w /= 4.0;
+            double cotAlpha = !he->onBoundary ? cot(angles[he->index]) : 0.0;
+            double cotBeta  = !he->flip->onBoundary ? cot(angles[he->flip->index]) : 0.0;
+            double w = (cotAlpha + cotBeta)/4.0;
             sumW += w;
             
-            HTriplets.push_back(Eigen::Triplet<double>(v->index, he->flip->vertex->index, -w));
+            if (!he->flip->vertex->isBoundary()) {
+                HTriplets.push_back(Eigen::Triplet<double>(vIdx, index[he->flip->vertex->index], -w));
+            }
             
             he = he->flip->next;
         } while (he != v->he);
         
-        HTriplets.push_back(Eigen::Triplet<double>(v->index, v->index, sumW + 1e-8));
+        HTriplets.push_back(Eigen::Triplet<double>(vIdx, vIdx, sumW + 1e-8));
     }
     
     hessian.setFromTriplets(HTriplets.begin(), HTriplets.end());
@@ -163,42 +145,31 @@ void Cetm::setEdgeLengthsAndAngles()
     // set edge lengths
     for (EdgeCIter e = mesh.edges.begin(); e != mesh.edges.end(); e++) {
         HalfEdgeCIter he = e->he;
-        lengths[e->index] = e->length() * exp(0.5*(solver.x[he->vertex->index] +
-                                                   solver.x[he->flip->vertex->index]));
+        double u1 = he->vertex->isBoundary() ? 0.0 : solver.x[index[he->vertex->index]];
+        double u2 = he->flip->vertex->isBoundary() ? 0.0 : solver.x[index[he->flip->vertex->index]];
+        
+        lengths[e->index] = e->length()*exp(0.5*(u1 + u2));
     }
     
     // set angles
     for (FaceCIter f = mesh.faces.begin(); f != mesh.faces.end(); f++) {
         if (!f->isBoundary()) {
             
-            // add adjacent edge lengths
-            std::vector<double> al;
+            // copy the three edge lengths values for triangle f into al
+            int i = 0;
+            std::vector<double> al(3);
             HalfEdgeCIter he = f->he;
             do {
-                al.push_back(lengths[he->edge->index]);
-                
-                he = he->next;
-            } while (he != f->he);
-            
-            int i = 0; int l = -1;
-            do {
-                // check if triangle inequality is not satisfied
-                int j = (i+1)%3, k = (i+2)%3;
-                if (al[i] > al[k] + al[j]) {
-                    l = i;
-                    break;
-                }
-                
-                angles[he->index] = angle(al[k], al[i], al[j]);
+                al[i] = lengths[he->edge->index];
                 i++;
                 
                 he = he->next;
             } while (he != f->he);
             
+            // compute angles
             i = 0;
-            he = f->he;
             do {
-                if (l != -1) angles[he->index] = l == i ? M_PI - EPSILON : EPSILON/2.0;
+                angles[he->index] = angle(al[(i+2)%3], al[i], al[(i+1)%3]);
                 i++;
                 
                 he = he->next;
@@ -283,8 +254,15 @@ void Cetm::setUVs()
 
 void Cetm::parameterize()
 {
-    // set default thetas
-    setDefaultThetas();
+    // Set vertex indices
+    int vIdx = 0;
+    for (VertexCIter v = mesh.vertices.begin(); v != mesh.vertices.end(); v++) {
+        if (!v->isBoundary()) index[v->index] = vIdx++;
+    }
+    solver.n = vIdx;
+    
+    // set target thetas
+    setTargetThetas();
     
     // compute edge lengths
     if (!computeScaleFactors()) {
@@ -294,7 +272,4 @@ void Cetm::parameterize()
 
     // set uvs
     setUVs();
-    
-    // TODOs
-    // 1) implement natural boundary conditions
 }
