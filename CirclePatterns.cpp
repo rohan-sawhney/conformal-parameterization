@@ -215,9 +215,7 @@ void CirclePatterns::computeHessian(Eigen::SparseMatrix<double>& hessian, const 
         if (!e->isBoundary()) {
             int fk = e->he->face->index;
             int fl = e->he->flip->face->index;
-            
-            if (fk < fl) std::swap(fk, fl);
-            
+                        
             double hessval = sin(thetas[e->index]) / (cosh(rho(fk) - rho(fl)) - cos(thetas[e->index]));
             HTriplets.push_back(Eigen::Triplet<double>(fk, fk, hessval + 1e-8));
             HTriplets.push_back(Eigen::Triplet<double>(fl, fl, hessval + 1e-8));
